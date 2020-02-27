@@ -1,0 +1,319 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>antispoofing.mcnns.datasets.ndcld15 &#8212; MCNNs 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">MCNNs 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for antispoofing.mcnns.datasets.ndcld15</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="k">import</span> <span class="n">glob</span>
+
+<span class="kn">from</span> <span class="nn">antispoofing.mcnns.datasets.dataset</span> <span class="k">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">antispoofing.mcnns.utils</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">model_selection</span>
+
+
+<div class="viewcode-block" id="NDCLD15"><a class="viewcode-back" href="../../../../antispoofing.mcnns.datasets.html#antispoofing.mcnns.datasets.ndcld15.NDCLD15">[docs]</a><span class="k">class</span> <span class="nc">NDCLD15</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Interface for the Notre Dame Contact Lenses Dataset 2015 (NDCLD15).</span>
+
+<span class="sd">    Interface for the Notre Dame Contact Lenses Dataset 2015 (NDCLD15) whose evaluation protocol consists on randomly splitting the samples</span>
+<span class="sd">    two equal sets, A and B. After that, we execute our method two times using the sets A and B to train and test a classification model,</span>
+<span class="sd">    respectively, and next using the sets B and A, also to train and test another different classification model, respectively.</span>
+<span class="sd">    This procedure is repeated by five times and, at the end, we report the mean of the accuracies from the 10 executions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_path</span><span class="p">,</span> <span class="n">ground_truth_path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">permutation_path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">iris_location</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                 <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;./working&#39;</span><span class="p">,</span> <span class="n">file_types</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;.png&#39;</span><span class="p">,</span> <span class="s1">&#39;.bmp&#39;</span><span class="p">,</span> <span class="s1">&#39;.jpg&#39;</span><span class="p">,</span> <span class="s1">&#39;.tiff&#39;</span><span class="p">),</span>
+                 <span class="n">operation</span><span class="o">=</span><span class="s1">&#39;crop&#39;</span><span class="p">,</span> <span class="n">max_axis</span><span class="o">=</span><span class="mi">320</span><span class="p">,</span>
+                 <span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">NDCLD15</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">iris_location</span><span class="p">,</span> <span class="n">file_types</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span> <span class="n">max_axis</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ground_truth_path</span> <span class="o">=</span> <span class="n">ground_truth_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="NDCLD15.build_meta"><a class="viewcode-back" href="../../../../antispoofing.mcnns.datasets.html#antispoofing.mcnns.datasets.ndcld15.NDCLD15.build_meta">[docs]</a>    <span class="k">def</span> <span class="nf">build_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inpath</span><span class="p">,</span> <span class="n">filetypes</span><span class="p">):</span>
+
+        <span class="n">img_idx</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">all_fnames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">all_labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">all_idxs</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">subject_id</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sensor</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">hash_img_id</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">SEQUENCE_ID_COL</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">SUBJECT_ID_COL</span> <span class="o">=</span> <span class="mi">8</span>
+        <span class="n">SENSOR_ID_COL</span> <span class="o">=</span> <span class="mi">36</span>
+        <span class="n">TAG_LIST_COL</span> <span class="o">=</span> <span class="mi">61</span>
+        <span class="n">CONTACTS_COL</span> <span class="o">=</span> <span class="mi">50</span>
+
+        <span class="n">gt_list</span><span class="p">,</span> <span class="n">gt_hash</span> <span class="o">=</span> <span class="n">read_csv_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ground_truth_path</span><span class="p">,</span> <span class="n">sequenceid_col</span><span class="o">=</span><span class="n">SEQUENCE_ID_COL</span><span class="p">)</span>
+        <span class="n">all_tag_list</span> <span class="o">=</span> <span class="n">gt_list</span><span class="p">[:,</span> <span class="n">TAG_LIST_COL</span><span class="p">]</span>
+
+        <span class="c1"># -- The rules for getting the genuine samples is the union between:</span>
+        <span class="c1"># -- (1) the samples that have the value &#39;No&#39; in the CONTACTS column cells;</span>
+        <span class="c1"># -- (2) the samples that have an empty value in the TAG_LIST column cells.</span>
+        <span class="n">no_contact_lenses_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">gt_list</span><span class="p">[:,</span> <span class="n">CONTACTS_COL</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;No&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">empty_tag_list_cells_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_tag_list</span><span class="p">)</span> <span class="k">if</span> <span class="s1">&#39;&#39;</span> <span class="o">==</span> <span class="n">tag</span><span class="p">])</span>
+        <span class="n">without_contact_lenses_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">empty_tag_list_cells_idxs</span><span class="p">,</span> <span class="n">no_contact_lenses_idxs</span><span class="p">)))</span>
+
+        <span class="c1"># -- The rules for getting the presentation attacks (texture contact lenses) samples is:</span>
+        <span class="c1"># -- (1) the samples that have the value &#39;contacts-texture&#39; or &#39;contacts-cosmetic&#39; in the TAG_LIST column cells.</span>
+        <span class="n">contact_texture_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_tag_list</span><span class="p">)</span> <span class="k">if</span> <span class="s1">&#39;contacts-texture&#39;</span> <span class="ow">in</span> <span class="n">tag</span> <span class="ow">or</span> <span class="s1">&#39;contacts-cosmetic&#39;</span> <span class="ow">in</span> <span class="n">tag</span><span class="p">])</span>
+        <span class="n">with_contact_lenses_idxs</span> <span class="o">=</span> <span class="n">contact_texture_idxs</span>
+
+        <span class="n">sequence_id_presentation_attack_class</span> <span class="o">=</span> <span class="n">gt_list</span><span class="p">[</span><span class="n">with_contact_lenses_idxs</span><span class="p">,</span> <span class="n">SEQUENCE_ID_COL</span><span class="p">]</span>
+        <span class="n">sequence_id_genuine_class</span> <span class="o">=</span> <span class="n">gt_list</span><span class="p">[</span><span class="n">without_contact_lenses_idxs</span><span class="p">,</span> <span class="n">SEQUENCE_ID_COL</span><span class="p">]</span>
+
+        <span class="c1"># # -- for debugging ---------------------------------------------------------------------------------------------------------------</span>
+        <span class="c1"># labeled_idxs = np.concatenate((with_contact_lenses_idxs, without_contact_lenses_idxs))</span>
+        <span class="c1"># full_idxs = np.arange(len(gt_list))</span>
+        <span class="c1"># nonlabeled_idxs = np.setdiff1d(full_idxs, labeled_idxs)</span>
+        <span class="c1">#</span>
+        <span class="c1"># self.LIV_DET_TRAIN = os.path.join(PROJECT_PATH, &#39;../extra/LivDet-Iris-2017_splits/livdet-train.txt&#39;)</span>
+        <span class="c1"># self.LIV_DET_TEST = os.path.join(PROJECT_PATH, &#39;../extra/LivDet-Iris-2017_splits/livdet-test.txt&#39;)</span>
+        <span class="c1"># self.LIV_DET_UNKNOWN_TEST = os.path.join(PROJECT_PATH, &#39;../extra/LivDet-Iris-2017_splits/livdet-unknown_test.txt&#39;)</span>
+        <span class="c1">#</span>
+        <span class="c1"># liv_det_train_data, liv_det_train_hash = read_csv_file(self.LIV_DET_TRAIN, sequenceid_col=0, delimiter=&#39; &#39;)</span>
+        <span class="c1"># liv_det_test_data, liv_det_test_hash = read_csv_file(self.LIV_DET_TEST, sequenceid_col=0, delimiter=&#39; &#39;)</span>
+        <span class="c1"># liv_det_unknown_test_data, liv_det_unknown_test_hash = read_csv_file(self.LIV_DET_UNKNOWN_TEST, sequenceid_col=0, delimiter=&#39; &#39;)</span>
+        <span class="c1">#</span>
+        <span class="c1"># lvtrain_g = [os.path.splitext(l[0])[0] for l in liv_det_train_data if int(l[1])==0]</span>
+        <span class="c1"># lvtrain_pa = [os.path.splitext(l[0])[0] for l in liv_det_train_data if int(l[1])==1]</span>
+        <span class="c1">#</span>
+        <span class="c1"># lvtest_g = [os.path.splitext(l[0])[0] for l in liv_det_test_data if int(l[1])==0]</span>
+        <span class="c1"># lvtest_pa = [os.path.splitext(l[0])[0] for l in liv_det_test_data if int(l[1])==1]</span>
+        <span class="c1">#</span>
+        <span class="c1"># assert np.setdiff1d(np.array(lvtrain_g), sequence_id_genuine_class).size == 0</span>
+        <span class="c1"># assert np.setdiff1d(np.array(lvtest_g), sequence_id_genuine_class).size == 0</span>
+        <span class="c1"># assert np.setdiff1d(np.array(lvtrain_pa), sequence_id_presentation_attack_class).size == 0</span>
+        <span class="c1"># assert np.setdiff1d(np.array(lvtest_pa), sequence_id_presentation_attack_class).size == 0</span>
+        <span class="c1"># # --------------------------------------------------------------------------------------------------------------------------------</span>
+
+        <span class="n">folders</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">list_dirs</span><span class="p">(</span><span class="n">inpath</span><span class="p">,</span> <span class="n">filetypes</span><span class="p">)]</span>
+        <span class="n">folders</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">folders</span><span class="p">)))</span>
+
+        <span class="n">non_labeled</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">folder</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">folders</span><span class="p">):</span>
+
+            <span class="n">fnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inpath</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span> <span class="o">+</span> <span class="n">filetype</span><span class="p">))</span> <span class="k">for</span> <span class="n">filetype</span> <span class="ow">in</span> <span class="n">filetypes</span><span class="p">]</span>
+            <span class="n">fnames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">fnames</span><span class="p">)))</span>
+
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">fname</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fnames</span><span class="p">):</span>
+
+                <span class="c1"># -- get the img_id from the image filename</span>
+                <span class="n">rel_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">inpath</span><span class="p">)</span>
+                <span class="n">img_id</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">rel_path</span><span class="p">))</span>
+                <span class="n">img_id</span> <span class="o">=</span> <span class="n">img_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="c1"># -- check if the sample is labeled</span>
+                <span class="n">has_label</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">img_id</span> <span class="ow">in</span> <span class="n">sequence_id_presentation_attack_class</span><span class="p">:</span>
+                    <span class="n">has_label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">POS_LABEL</span>
+                <span class="k">elif</span> <span class="n">img_id</span> <span class="ow">in</span> <span class="n">sequence_id_genuine_class</span><span class="p">:</span>
+                    <span class="n">has_label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NEG_LABEL</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">non_labeled</span> <span class="o">+=</span> <span class="p">[</span><span class="n">fname</span><span class="p">]</span>
+
+                <span class="c1"># -- if the sample is labeled then we can use it</span>
+                <span class="k">if</span> <span class="n">has_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+                    <span class="n">all_fnames</span> <span class="o">+=</span> <span class="p">[</span><span class="n">fname</span><span class="p">]</span>
+                    <span class="n">all_idxs</span> <span class="o">+=</span> <span class="p">[</span><span class="n">img_idx</span><span class="p">]</span>
+
+                    <span class="n">all_labels</span> <span class="o">+=</span> <span class="p">[</span><span class="n">has_label</span><span class="p">]</span>
+
+                    <span class="n">subject_id</span> <span class="o">+=</span> <span class="p">[</span><span class="n">gt_list</span><span class="p">[</span><span class="n">gt_hash</span><span class="p">[</span><span class="n">img_id</span><span class="p">]][</span><span class="n">SUBJECT_ID_COL</span><span class="p">]]</span>
+                    <span class="n">sensor</span> <span class="o">+=</span> <span class="p">[</span><span class="n">gt_list</span><span class="p">[</span><span class="n">gt_hash</span><span class="p">[</span><span class="n">img_id</span><span class="p">]][</span><span class="n">SENSOR_ID_COL</span><span class="p">]]</span>
+
+                    <span class="n">hash_img_id</span><span class="p">[</span><span class="n">img_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">img_idx</span>
+
+                    <span class="n">img_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">all_fnames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_fnames</span><span class="p">)</span>
+        <span class="n">all_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_labels</span><span class="p">)</span>
+        <span class="n">all_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_idxs</span><span class="p">)</span>
+        <span class="n">subject_id</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">subject_id</span><span class="p">)</span>
+        <span class="n">sensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sensor</span><span class="p">)</span>
+
+        <span class="n">non_labeled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">non_labeled</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-- non_labeled:&#39;</span><span class="p">,</span> <span class="n">non_labeled</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="s1">&#39;non_labeled.txt&#39;</span><span class="p">,</span> <span class="n">non_labeled</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">r_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;all_fnames&#39;</span><span class="p">:</span> <span class="n">all_fnames</span><span class="p">,</span>
+                  <span class="s1">&#39;all_labels&#39;</span><span class="p">:</span> <span class="n">all_labels</span><span class="p">,</span>
+                  <span class="s1">&#39;all_idxs&#39;</span><span class="p">:</span> <span class="n">all_idxs</span><span class="p">,</span>
+                  <span class="s1">&#39;subject_id&#39;</span><span class="p">:</span> <span class="n">subject_id</span><span class="p">,</span>
+                  <span class="s1">&#39;sensor&#39;</span><span class="p">:</span> <span class="n">sensor</span><span class="p">,</span>
+                  <span class="s1">&#39;hash_img_id&#39;</span><span class="p">:</span> <span class="n">hash_img_id</span><span class="p">,</span>
+                  <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">r_dict</span></div>
+
+<div class="viewcode-block" id="NDCLD15.protocol_eval"><a class="viewcode-back" href="../../../../antispoofing.mcnns.datasets.html#antispoofing.mcnns.datasets.ndcld15.NDCLD15.protocol_eval">[docs]</a>    <span class="k">def</span> <span class="nf">protocol_eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_fold</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; This method implement a 5vs2 cross-validation evaluation protocol.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fold (int): Number of the fold to be used for training and testing</span>
+<span class="sd">            n_fold (int): Total number of folds to be splitted. Defaults to 5.</span>
+<span class="sd">            test_size (float): Size of the testing set. Defaults to 50%.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: A dictionary containing the training and testing sets.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># -- loading the training data and its labels</span>
+        <span class="n">all_fnames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_info</span><span class="p">[</span><span class="s1">&#39;all_fnames&#39;</span><span class="p">]</span>
+        <span class="n">all_labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_info</span><span class="p">[</span><span class="s1">&#39;all_labels&#39;</span><span class="p">]</span>
+        <span class="n">subject_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_info</span><span class="p">[</span><span class="s1">&#39;subject_id&#39;</span><span class="p">]</span>
+        <span class="n">all_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_imgs</span><span class="p">(</span><span class="n">all_fnames</span><span class="p">)</span>
+
+        <span class="n">unique_subject_id</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">subject_id</span><span class="p">)</span>
+        <span class="n">unique_subject_id_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">all_labels</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">s_id</span> <span class="o">==</span> <span class="n">subject_id</span><span class="p">)[</span><span class="mi">0</span><span class="p">]][:</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">s_id</span> <span class="ow">in</span> <span class="n">unique_subject_id</span><span class="p">])</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">unique_subject_id</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">unique_subject_id_labels</span><span class="o">.</span><span class="n">size</span>
+        <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;It is something wrong with unique_subject_id array&#39;</span><span class="p">)</span>
+
+        <span class="n">rand_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+        <span class="n">sss</span> <span class="o">=</span> <span class="n">model_selection</span><span class="o">.</span><span class="n">StratifiedShuffleSplit</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="n">n_fold</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="n">test_size</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">rand_state</span><span class="p">)</span>
+
+        <span class="n">folds_subject_id_idxs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">train_index</span><span class="p">,</span> <span class="n">test_index</span> <span class="ow">in</span> <span class="n">sss</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">unique_subject_id</span><span class="p">,</span> <span class="n">unique_subject_id_labels</span><span class="p">):</span>
+            <span class="n">folds_subject_id_idxs</span> <span class="o">+=</span> <span class="p">[[</span><span class="n">train_index</span><span class="p">,</span> <span class="n">test_index</span><span class="p">]]</span>
+            <span class="n">folds_subject_id_idxs</span> <span class="o">+=</span> <span class="p">[[</span><span class="n">test_index</span><span class="p">,</span> <span class="n">train_index</span><span class="p">]]</span>
+
+        <span class="n">subject_id_train</span> <span class="o">=</span> <span class="n">unique_subject_id</span><span class="p">[</span><span class="n">folds_subject_id_idxs</span><span class="p">[</span><span class="n">fold</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">subject_id_test</span> <span class="o">=</span> <span class="n">unique_subject_id</span><span class="p">[</span><span class="n">folds_subject_id_idxs</span><span class="p">[</span><span class="n">fold</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-- Total of samples:&#39;</span><span class="p">,</span> <span class="n">unique_subject_id</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-- subject_id_train size:&#39;</span><span class="p">,</span> <span class="n">subject_id_train</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-- subject_id_test size:&#39;</span><span class="p">,</span> <span class="n">subject_id_test</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="n">train_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">s_id</span> <span class="o">==</span> <span class="n">subject_id</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">s_id</span> <span class="ow">in</span> <span class="n">subject_id_train</span><span class="p">])</span>
+        <span class="n">test_idxs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">s_id</span> <span class="o">==</span> <span class="n">subject_id</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">s_id</span> <span class="ow">in</span> <span class="n">subject_id_test</span><span class="p">])}</span>
+
+        <span class="c1"># -- check if there is subject overlapping between training and testing sets.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="n">subject_id_train</span><span class="p">,</span> <span class="n">subject_id_test</span><span class="p">)</span><span class="o">.</span><span class="n">size</span>
+        <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Subject overlapping between training and testing sets&#39;</span><span class="p">)</span>
+
+        <span class="c1"># -- check if the training and testing sets are disjoint.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="n">all_fnames</span><span class="p">[</span><span class="n">train_idxs</span><span class="p">],</span> <span class="n">all_fnames</span><span class="p">[</span><span class="n">test_idxs</span><span class="p">])</span><span class="o">.</span><span class="n">size</span>
+        <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;The training and testing sets are mixed&#39;</span><span class="p">)</span>
+
+
+        <span class="n">train_set</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">all_data</span><span class="p">[</span><span class="n">train_idxs</span><span class="p">],</span> <span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="n">all_labels</span><span class="p">[</span><span class="n">train_idxs</span><span class="p">],</span> <span class="s1">&#39;idxs&#39;</span><span class="p">:</span> <span class="n">train_idxs</span><span class="p">}</span>
+
+        <span class="n">test_set</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">test_id</span> <span class="ow">in</span> <span class="n">test_idxs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">test_idxs</span><span class="p">[</span><span class="n">test_id</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+                <span class="n">test_set</span><span class="p">[</span><span class="n">test_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">all_data</span><span class="p">[</span><span class="n">test_idxs</span><span class="p">[</span><span class="n">test_id</span><span class="p">]],</span>
+                                     <span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="n">all_labels</span><span class="p">[</span><span class="n">test_idxs</span><span class="p">[</span><span class="n">test_id</span><span class="p">]],</span>
+                                     <span class="s1">&#39;idxs&#39;</span><span class="p">:</span> <span class="n">test_idxs</span><span class="p">[</span><span class="n">test_id</span><span class="p">],</span>
+                                     <span class="p">}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="n">r_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;train_idxs&#39;</span><span class="p">:</span> <span class="n">train_idxs</span><span class="p">,</span>
+                      <span class="s1">&#39;test_idxs&#39;</span><span class="p">:</span> <span class="n">test_idxs</span><span class="p">,</span>
+                      <span class="p">}</span>
+
+            <span class="n">meta_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_info</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">meta_info</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">r_dict</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">meta_info</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;train_set&#39;</span><span class="p">:</span> <span class="n">train_set</span><span class="p">,</span> <span class="s1">&#39;test_set&#39;</span><span class="p">:</span> <span class="n">test_set</span><span class="p">}</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">MCNNs 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, ND Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,608 @@
+# # -*- coding: utf-8 -*-
+#
+# import os
+# import cv2
+# import sys
+# import json
+#
+# from antispoofing.mcnns.utils import *
+# from antispoofing.mcnns.measure import *
+# from antispoofing.mcnns.classification.baseclassifier import BaseClassifier
+# from sklearn.utils import class_weight
+# from sklearn import metrics
+# from vis.visualization import visualize_activation
+# from vis.visualization import visualize_saliency
+# from vis.utils import utils
+# import matplotlib.cm as cm
+#
+#
+# class CNNVis(object):
+#     """
+#     """
+#
+#     def __init__(self, output_path, dataset, input_shape=200, epochs=50,
+#                  batch_size=8, loss_function='categorical_crossentropy', lr=0.01, decay=0.0005, optimizer='SGD', regularization=0.1,
+#                  output_model=None, weights_path='', device_number=0, force_train=False, filter_vis=False, layers_name=('conv_1')):
+#
+#         # super(CNNVis, self).__init__(output_path, dataset,
+#         #                           operation=operation,
+#         #                           max_axis=max_axis,
+#         #                           )
+#
+#         self.debug = True
+#
+#         self.dataset = dataset
+#         self.output_path = output_path
+#         self.output_model = os.path.join(self.output_path, "full_model.hdf5")
+#         self.output_weights = os.path.join(self.output_path, "weights.hdf5")
+#
+#         self.input_shape = (input_shape, input_shape, 1)
+#         self.num_classes = 2
+#         self.epochs = epochs
+#         self.batch_size = batch_size
+#         self.loss_function = loss_function
+#         self.lr = lr
+#         self.decay = decay
+#         self.optimizer = optimizer
+#         self.regularization = regularization
+#         self.device_number = device_number
+#         self.force_train = force_train
+#         self.filter_vis = filter_vis
+#         self.layers_name = list(layers_name)
+#
+#     def create_mosaic(self, all_data, resize=False, max_axis=64, n_col=50, quality=50, output_fname='mosaic.jpg'):
+#         print('-- creating mosaic ...')
+#         sys.stdout.flush()
+#
+#         alldata = []
+#         for idx in range(len(all_data)):
+#             img = all_data[idx]
+#             img = np.squeeze(img)
+#             if resize:
+#                 ratio = max_axis / np.max(img.shape)
+#                 new_shape = (int(img.shape[0] * ratio), int(img.shape[1] * ratio))
+#                 alldata += [cv2.resize(img, new_shape)]
+#             else:
+#                 alldata += [img]
+#         mosaic_img = mosaic(n_col, alldata)
+#
+#         print('-- saving mosaic',  output_fname)
+#         sys.stdout.flush()
+#
+#         cv2.imwrite(output_fname, mosaic_img, [int(cv2.IMWRITE_JPEG_QUALITY), quality])
+#
+#     def deprocess_image(self, x):
+#         # normalize tensor: center on 0., ensure std is 0.1
+#         x -= x.mean()
+#         x /= (x.std() + 1e-5)
+#         x *= 0.1
+#
+#         # clip to [0, 1]
+#         x += 0.5
+#         x = np.clip(x, 0, 1)
+#
+#         # convert to RGB array
+#         x *= 255
+#         if K.image_data_format() == 'channels_first':
+#             x = x.transpose((1, 2, 0))
+#         x = np.clip(x, 0, 255).astype('uint8')
+#         return x
+#
+#     def normalize(self, x):
+#         # utility function to normalize a tensor by its L2 norm
+#         return x / (K.sqrt(K.mean(K.square(x))) + 1e-5)
+#
+#     def archtecture_definition(self):
+#
+#         img_input = Input(shape=self.input_shape, name='input_1')
+#
+#         # -- layer 1
+#         x = Conv2D(filters=16, kernel_size=(3, 3), strides=(1, 1), activation='relu', name='conv_1')(img_input)
+#         x = MaxPooling2D(pool_size=(9, 9), strides=(2, 2), name='pool_1')(x)
+#         x = BatchNormalization(momentum=0.9, epsilon=1e-3, name='batch_norm_1')(x)
+#
+#         # -- layer 2
+#         x = Conv2D(filters=32, kernel_size=(3, 3), strides=(1, 1), activation='relu', name='conv_2')(x)
+#         x = MaxPooling2D(pool_size=(9, 9), strides=(8, 8), name='pool_2')(x)
+#         x = BatchNormalization(momentum=0.9, epsilon=1e-3, name='batch_norm_2')(x)
+#
+#         # # -- layer 3
+#         # x = LocallyConnected2D(filters=64, kernel_size=(3, 3), strides=(3, 3), name='local_3')(x)
+#         # x = MaxPooling2D(pool_size=(3, 3), strides=(2, 2), name='pool_3')(x)
+#         # # x = BatchNormalization(momentum=0.9, epsilon=1e-3, name='batch_norm_3')(x)
+#
+#         # # -- layer 4
+#         # x = LocallyConnected2D(filters=32, kernel_size=(3, 3), strides=(3, 3), name='local_4')(x)
+#         # x = BatchNormalization(momentum=0.9, epsilon=1e-3, name='batch_norm_4')(x)
+#
+#         x = Flatten(name='flatten')(x)
+#         x = Dense(units=1024, activation='relu', name='fc1')(x)
+#
+#         # -- Classification block
+#         x = Dense(self.num_classes, activation='softmax', name='predictions',
+#                   kernel_regularizer=keras.regularizers.l2(self.regularization))(x)
+#
+#         model = keras.models.Model(img_input, x, name='mcnn')
+#
+#         print(model.summary())
+#
+#         model_json = json.loads(model.to_json())
+#         json_fname = os.path.join(self.output_path, 'model.json')
+#         with open(json_fname, mode='w') as f:
+#             print("--saving json file:", json_fname)
+#             sys.stdout.flush()
+#             f.write(json.dumps(model_json, indent=4))
+#
+#         layers_name = np.array([layer.name for layer in model.layers]).reshape((-1, 1))
+#         json_fname = os.path.join(self.output_path, 'layers_name.txt')
+#         np.savetxt(json_fname, layers_name, fmt='%s')
+#
+#         return model
+#
+#     def fit_model(self, x_train, y_train, x_validation=None, y_validation=None, class_weight=None):
+#
+#         self.model = self.archtecture_definition()
+#
+#         if 'SGD' in self.optimizer:
+#             opt = keras.optimizers.SGD(lr=self.lr, decay=self.decay, momentum=0.9, nesterov=True)
+#         elif 'Adam' in self.optimizer:
+#             opt = keras.optimizers.Adam(lr=self.lr, decay=self.decay)
+#         elif 'Adagrad' in self.optimizer:
+#             opt = keras.optimizers.Adagrad(lr=self.lr, decay=self.decay)
+#         elif 'Adadelta' in self.optimizer:
+#             opt = keras.optimizers.Adadelta(lr=self.lr, decay=self.decay)
+#         else:
+#             raise Exception('Optimizer not implemented yet.', self.optimizer)
+#         self.model.compile(loss=self.loss_function, optimizer=opt, metrics=['accuracy'])
+#
+#         callbacks = [keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0.00001, patience=10, verbose=0, mode='auto')]
+#         history = self.model.fit(x_train, y_train,
+#                                  batch_size=self.batch_size, epochs=self.epochs, verbose=1,
+#                                  callbacks=callbacks,
+#                                  validation_data=(x_validation, y_validation),
+#                                  shuffle=True,
+#                                  class_weight=class_weight,
+#                                  )
+#
+#         # data_deliver = ImageDataGenerator(featurewise_center=True,
+#         #                                    featurewise_std_normalization=True,
+#         #                                    )
+#         #
+#         # self.model.fit_generator(data_deliver.flow(x_train, y_train, batch_size=self.batch_size),
+#         #                          steps_per_epoch=x_train.shape[0]//self.batch_size,
+#         #                          epochs=self.epochs,
+#         #                          verbose=1,
+#         #                          callbacks=callbacks,
+#         #                          validation_data=data_deliver.flow(x_validation, y_validation, batch_size=self.batch_size),
+#         #                          )
+#
+#         # -- save the results obtained during the training process
+#         json_fname = os.path.join(self.output_path, 'training_history.json')
+#         with open(json_fname, mode='w') as f:
+#             print("--saving json file:", json_fname)
+#             sys.stdout.flush()
+#             f.write(json.dumps(history.history, indent=4))
+#
+#         output_history = os.path.join(self.output_path, 'training_history.png')
+#         fig1 = plt.figure(figsize=(8, 6), dpi=100)
+#         title_font = {'size': '18', 'color': 'black', 'weight': 'normal', 'verticalalignment': 'bottom'}
+#         axis_font = {'size': '14'}
+#         font_size_axis = 12
+#         title = "Training History"
+#
+#         plt.clf()
+#         plt.plot(range(1, len(history.history['acc']) + 1), history.history['acc'], color=(0, 0, 0), marker='o', linestyle='-', linewidth=2,
+#                  label='train')
+#         plt.plot(range(1, len(history.history['val_acc']) + 1), history.history['val_acc'], color=(0, 1, 0), marker='s', linestyle='-',
+#                  linewidth=2, label='test')
+#
+#         plt.xlabel('Epochs', **axis_font)
+#         plt.ylabel('Accuracy', **axis_font)
+#
+#         plt.xticks(size=font_size_axis)
+#         plt.yticks(size=font_size_axis)
+#
+#         plt.legend(loc='upper left')
+#         plt.title(title, **title_font)
+#         plt.grid(True)
+#
+#         fig1.savefig(output_history)
+#
+#     def training(self, x_train, y_train, x_validation=None, y_validation=None):
+#
+#         if self.force_train or not os.path.exists(self.output_model):
+#             print('-- training ...')
+#             sys.stdout.flush()
+#             # pdb.set_trace()
+#
+#             # -- compute the class weights for unbalanced datasets
+#             class_weights = class_weight.compute_class_weight('balanced', np.unique(y_train), y_train)
+#             print('class_weights', class_weights)
+#
+#             # -- convert class vectors to binary class matrices.
+#             y_train = keras.utils.to_categorical(y_train, self.num_classes)
+#             y_validation = keras.utils.to_categorical(y_validation, self.num_classes)
+#
+#             # -- fit the model
+#             self.fit_model(x_train, y_train, x_validation=x_validation, y_validation=y_validation, class_weight=class_weights)
+#
+#             # -- save the fitted model
+#             print("-- saving model", self.output_model)
+#             sys.stdout.flush()
+#
+#             self.model.save(self.output_model)
+#             self.model.save_weights(self.output_weights)
+#         else:
+#             print('-- model already exists in', self.output_model)
+#             sys.stdout.flush()
+#
+#     def testing(self, x_test, y_test):
+#         print('-- testing ...')
+#         sys.stdout.flush()
+#
+#         self.model = keras.models.load_model(self.output_model)
+#
+#         y_test_cat = keras.utils.to_categorical(y_test, self.num_classes)
+#         score = self.model.evaluate(x_test, y_test_cat, batch_size=self.batch_size, verbose=0)
+#
+#         scores = self.model.predict(x_test, batch_size=self.batch_size, verbose=0)
+#
+#         y_pred = np.argmax(scores, axis=1)
+#         y_pred[y_pred == 0] = -1
+#         y_scores = scores[:, 0] * y_pred
+#         y_test[y_test == 0] = -1
+#
+#         roc_auc = metrics.roc_auc_score(y_test, y_pred)
+#         bal_acc = balanced_accuracy(y_test, y_pred)
+#
+#         class_report = metrics.classification_report(y_test, y_pred)
+#
+#         neg_scores, pos_scores = split_score_distributions(y_test, y_scores, label_neg=-1, label_pos=1)
+#         thr = eer_threshold(neg_scores, pos_scores)
+#         # thr = far_threshold(neg_scores, pos_scores, far_value=0.01)
+#
+#         far, frr = farfrr(neg_scores, pos_scores, thr)
+#         print('-- FAR (EER threshold):', far)
+#         print('-- FRR (EER threshold):', frr)
+#         print('-- ACC:', score[1])
+#         print('-- Balanced ACC:', bal_acc)
+#         print('-- AUC:', roc_auc)
+#
+#         print(class_report)
+#         sys.stdout.flush()
+#
+#         file_name = os.path.join(self.output_path, 'result.acc')
+#         f = open(file_name, 'w')
+#         f.write("%2.4f" % score[1])
+#         f.close()
+#
+#         file_name = os.path.join(self.output_path, 'result.bal_acc')
+#         f = open(file_name, 'w')
+#         f.write("%2.4f" % bal_acc)
+#         f.close()
+#
+#         r_dict = {'gt': y_test,
+#                   'predicted_labels': y_pred,
+#                   'predicted_scores': y_scores,
+#                   }
+#
+#         return r_dict
+#
+#     def show_weights(self, layer_name):
+#
+#         model = self.archtecture_definition()
+#         model.load_weights(self.output_weights)
+#         print('Model loaded.')
+#         print(model.summary())
+#
+#         # -- get the symbolic outputs of each "key" layer (we gave them unique names).
+#         layer_dict = dict([(layer.name, layer) for layer in model.layers[1:]])
+#
+#         # -- visualize weights
+#         W = layer_dict[layer_name].get_weights()[0]
+#
+#         if W is not []:
+#             # W = model.layers[0].W.get_value(borrow=True)
+#             W = np.squeeze(W)
+#             W = np.rollaxis(W, 2, 0)
+#             n = int(round(np.sqrt(W.shape[0])))
+#             print("W shape : ", W.shape)
+#             sys.stdout.flush()
+#
+#             output_fname = os.path.join(self.output_path, 'visualizing-weights-%s.png' % (layer_name))
+#             data = mosaic(n, W)
+#
+#             fig = plt.figure(figsize=(8, 8), dpi=100)
+#             plt.clf()
+#             plt.title('%s weights'% layer_name)
+#             plt.imshow(data, vmin=data.min(), vmax=data.max(), interpolation='nearest', cmap='binary')
+#             fig.savefig(output_fname)
+#
+#     def show_saliency_maps(self, layer_name, class_idx, input_img, backprop_modifier='guided', grad_modifier=None, prefix=''):
+#         model = self.archtecture_definition()
+#         model.load_weights(self.output_weights)
+#         print('Model loaded.')
+#         print(model.summary())
+#
+#         # Utility to search for layer index by name.
+#         # Alternatively we can specify this as -1 since it corresponds to the last layer.
+#         layer_idx = utils.find_layer_idx(model, layer_name)
+#
+#         # Swap softmax with linear
+#         model.layers[layer_idx].activation = activations.linear
+#         model = utils.apply_modifications(model)
+#
+#         heatmap = visualize_saliency(model, layer_idx, filter_indices=class_idx, seed_input=input_img,
+#                                      backprop_modifier=backprop_modifier, grad_modifier=grad_modifier)
+#
+#         output_fname = os.path.join(self.output_path, 'saliency_maps-%s-%s-%d-%s-%s.png' % (prefix, layer_name, class_idx, backprop_modifier, grad_modifier))
+#         fig = plt.figure(figsize=(6, 6), dpi=100)
+#         am1 = plt.imshow(heatmap)
+#         fig.colorbar(am1)
+#         plt.axis('off')
+#         fig.savefig(output_fname, bbox_inches='tight', pad_inches=0.0)
+#
+#         # fig, (ax1, ax2) = plt.subplots(ncols=2)
+#         # am1 = ax1.imshow(np.squeeze(input_img), cmap='jet')
+#         # # fig.colorbar(am1, ax=ax1)
+#         # am2 = ax2.imshow(heatmap, cmap='jet')
+#         # fig.colorbar(am2, ax=ax2)
+#         # fig.savefig(output_fname, bbox_inches='tight', pad_inches=0.0, dpi=100)
+#
+#     def show_activations(self, input_img, layer_name, filter_idx, prefix=''):
+#
+#         model = self.archtecture_definition()
+#         model.load_weights(self.output_weights)
+#         print('Model loaded.')
+#         print(model.summary())
+#
+#         # Utility to search for layer index by name.
+#         # Alternatively we can specify this as -1 since it corresponds to the last layer.
+#         layer_idx = utils.find_layer_idx(model, layer_name)
+#
+#         # Swap softmax with linear
+#         model.layers[layer_idx].activation = activations.linear
+#         model = utils.apply_modifications(model)
+#
+#         # This is the output node we want to maximize.
+#         img = visualize_activation(model, layer_idx, filter_indices=filter_idx)
+#
+#         output_fname = os.path.join(self.output_path, 'visualizing-activation-%s-%s-%d.png' % (prefix, layer_name, filter_idx))
+#
+#         fig = plt.figure(figsize=(6, 6), dpi=100)
+#         am1 = plt.imshow(np.squeeze(img))
+#         fig.colorbar(am1)
+#         plt.axis('off')
+#         fig.savefig(output_fname, bbox_inches='tight', pad_inches=0.0)
+#         # fig, (ax1, ax2) = plt.subplots(ncols=2)
+#         # am1 = ax1.imshow(np.squeeze(input_img), cmap='jet')
+#         # # fig.colorbar(am1, ax=ax1)
+#         # am2 = ax2.imshow(np.squeeze(img), cmap='jet')
+#         # fig.colorbar(am2, ax=ax2)
+#         # fig.savefig(output_fname, bbox_inches='tight', pad_inches=0.0, dpi=100)
+#         # cv2.imwrite(output_fname, img)
+#
+#     def filter_visualization(self, input_img_data, layer_name, prefix=''):
+#         """
+#         Inspired in the example codes available in Keras documentation.
+#         >> https://github.com/fchollet/keras/blob/master/examples/conv_filter_visualization.py
+#         """
+#
+#         model = self.archtecture_definition()
+#         model.load_weights(self.output_weights)
+#         print('Model loaded.')
+#         print(model.summary())
+#
+#         # input_img_data = input_img_data.astype(np.float32)
+#         print('input_img_data.shape', input_img_data.shape)
+#
+#         # -- this is the placeholder for the input images
+#         input_img = model.input
+#         print('model.input', model.input)
+#
+#         # -- get the symbolic outputs of each "key" layer (we gave them unique names).
+#         layer_dict = dict([(layer.name, layer) for layer in model.layers[1:]])
+#
+#         if K.image_data_format() == 'channels_first':
+#             # -- dimensions of the generated pictures for each filter.
+#             (_, n_channel, img_height, img_width) = input_img_data.shape
+#             (_, channel, height, width) = K.int_shape(layer_dict[layer_name].output)
+#         else:
+#             # -- dimensions of the generated pictures for each filter.
+#             (_, img_height, img_width, n_channel) = input_img_data.shape
+#             (_, height, width, channel) = K.int_shape(layer_dict[layer_name].output)
+#
+#         kept_filters = []
+#         for filter_index in range(0, channel):
+#             # -- scan through the filters,
+#             print('Processing filter %d' % filter_index)
+#
+#             # -- build a loss function that maximizes the activation of the nth filter of the layer considered
+#             layer_output = layer_dict[layer_name].output
+#             if K.image_data_format() == 'channels_first':
+#                 loss = K.mean(layer_output[:, filter_index, :, :])
+#             else:
+#                 loss = K.mean(layer_output[:, :, :, filter_index])
+#
+#             # -- compute the gradient of the input picture wrt this loss
+#             grads = K.gradients(loss, input_img)[0]
+#
+#             # -- normalization trick: we normalize the gradient
+#             grads = self.normalize(grads)
+#
+#             # -- this function returns the loss and grads given the input picture
+#             iterate = K.function([input_img], [loss, grads])
+#
+#             # -- step size for gradient ascent
+#             step = 1.
+#
+#             # we start from a gray image with some random noise
+#             if K.image_data_format() == 'channels_first':
+#                 input_img_data = np.random.random((1, 1, img_width, img_height))
+#             else:
+#                 input_img_data = np.random.random((1, img_width, img_height, 1))
+#             input_img_data = (input_img_data - 0.5) * 20 + 128
+#
+#             loss_value = 0.
+#             # -- run gradient ascent for 20 steps
+#             for i in range(20):
+#                 loss_value, grads_value = iterate([input_img_data])
+#                 input_img_data += grads_value * step
+#
+#                 print('Current loss value:', loss_value)
+#                 if loss_value <= 0.:
+#                     # -- some filters get stuck to 0, we can skip them
+#                     break
+#
+#             # -- decode the resulting input image
+#             # if loss_value > 0:
+#             img = self.deprocess_image(input_img_data[0])
+#             kept_filters.append((img, loss_value))
+#             print('Filter %d processed' % (filter_index))
+#
+#         # -- the filters that have the highest loss are assumed to be better-looking. keep the top 64 filters.
+#         n = int(round(np.sqrt(len(kept_filters))))
+#
+#         kept_filters.sort(key=lambda x: x[1], reverse=True)
+#
+#         grid_imgs = []
+#         for img, loss in kept_filters:
+#             grid_imgs += [img]
+#
+#         # for i in range(len(kept_filters)):
+#         #     pad = np.zeros(((60,) + kept_filters[i][0].shape[1:]), dtype=np.uint8) + 255
+#         #     img_0 = np.concatenate((kept_filters[i][0], pad), axis=0)
+#         #     cv2.putText(img_0, '%2.4f'%(kept_filters[i][1]), (10, img_0.shape[0] - 10),
+#         #                 cv2.FONT_HERSHEY_TRIPLEX, 1.4, color=(0, 0, 0), thickness=2, lineType=cv2.LINE_AA)
+#
+#         # -- save the result to disk
+#         output_fname = os.path.join(self.output_path, '%s_stitched_filters_%dx%d.png' % (layer_name, n, n))
+#         cv2.imwrite(output_fname, mosaic(n, grid_imgs))
+#
+#         # -- visualize convolution result (after activation)
+#
+#         fn = K.function([layer_dict[layer_name].input], [layer_dict[layer_name].output])
+#
+#         output_layer = fn([input_img_data])
+#         output_layer = np.squeeze(output_layer)
+#         output_layer = np.rollaxis(output_layer, 2, 0)
+#         print("C1 shape : ", output_layer.shape)
+#         n = int(round(np.sqrt(output_layer.shape[0])))
+#
+#         output_fname = os.path.join(self.output_path, '%s_%s_filters_%dx%d.png' % (prefix, layer_name, n, n))
+#         cv2.imwrite(output_fname, mosaic(n, output_layer))
+#
+#     def run(self):
+#         try:
+#             os.makedirs(self.output_path)
+#         except OSError:
+#             pass
+#
+#         predictions = []
+#         int_samples = []
+#
+#         # -- loading the training data and its labels
+#         meta_info = self.dataset.meta_info
+#         all_fnames = meta_info['all_fnames']
+#         all_labels = meta_info['all_labels']
+#         train_idxs = meta_info['train_idxs']
+#         test_idxs = meta_info['test_idxs']
+#
+#         all_pos_idxs = meta_info['all_pos_idxs']
+#         all_neg_idxs = meta_info['all_neg_idxs']
+#
+#         hash_img_id = meta_info['hash_img_id']
+#
+#         # no_contact_lenses_idxs = meta_info['no_contact_lenses_idxs']
+#         # only_color_idxs = meta_info['only_color_idxs']
+#         # texture_idxs = meta_info['texture_idxs']
+#         # transparent_idxs = meta_info['transparent_idxs']
+#
+#         if 'tensorflow' in keras.backend.backend():
+#             os.environ["CUDA_VISIBLE_DEVICES"] = self.device_number
+#
+#             K.clear_session()
+#             gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.95,
+#                                         allow_growth=True,
+#                                         allocator_type='BFC',
+#                                         )
+#             K.set_session(K.tf.Session(config=K.tf.ConfigProto(gpu_options=gpu_options,
+#                                                                allow_soft_placement=True,
+#                                                                log_device_placement=True,
+#                                                                )))
+#
+#         # n_imgs=200
+#         # no_contact_lenses_data = self.dataset.get_imgs(all_fnames[no_contact_lenses_idxs][:n_imgs])
+#         # only_color_data = self.dataset.get_imgs(all_fnames[only_color_idxs][:n_imgs])
+#         # texture_data = self.dataset.get_imgs(all_fnames[texture_idxs][:n_imgs])
+#         # transparent_data = self.dataset.get_imgs(all_fnames[transparent_idxs][:n_imgs])
+#         # np.savetxt('only_color_data.txt', all_fnames[only_color_idxs][:n_imgs], fmt="%s")
+#         # np.savetxt('texture_data.txt', all_fnames[texture_idxs][:n_imgs], fmt="%s")
+#         # np.savetxt('transparent_data.txt', all_fnames[transparent_idxs][:n_imgs], fmt="%s")
+#         # self.create_mosaic(no_contact_lenses_data[:n_imgs], resize=False, max_axis=64, n_col=5, quality=100, output_fname='mosaic-no_contact_lenses_data.jpg')
+#         # self.create_mosaic(only_color_data[:n_imgs], resize=False, max_axis=64, n_col=5, quality=100, output_fname='mosaic-only_color_data.jpg')
+#         # self.create_mosaic(texture_data[:n_imgs], resize=False, max_axis=64, n_col=5, quality=100, output_fname='mosaic-texture_data.jpg')
+#         # self.create_mosaic(transparent_data[:n_imgs], resize=False, max_axis=64, n_col=5, quality=100, output_fname='mosaic-transparent_data.jpg')
+#
+#         all_data = self.dataset.get_imgs(all_fnames)
+#         self.create_mosaic(all_data[all_pos_idxs], output_fname=os.path.join(self.output_path, 'mosaic-all_pos_idxs.jpeg'))
+#         self.create_mosaic(all_data[all_neg_idxs], output_fname=os.path.join(self.output_path, 'mosaic-all_neg_idxs.jpeg'))
+#
+#         if self.filter_vis:
+#
+#             json_data = []
+#             json_fname = os.path.join(self.output_path, 'int_samples.json')
+#             with open(json_fname, encoding='utf-8') as json_file:
+#                 json_data = json.load(json_file)
+#
+#             for key in json_data:
+#
+#                 for fname in json_data[key]['input_fnames'][:1]:
+#
+#                     img_id = os.path.splitext(os.path.basename(fname))[0].split('_')[0]
+#                     idx = hash_img_id[img_id]
+#
+#                     for name in enumerate(self.layers_name):
+#                         print('-- visualizing the layer', name)
+#                         sys.stdout.flush()
+#                         if 'conv' in name:
+#                             self.filter_visualization(all_data[idx], name, prefix="%s-%s-%d" % (key, img_id, all_labels[idx]))
+#
+#                     for class_idx in range(self.num_classes):
+#                         print('-- show_activations')
+#                         sys.stdout.flush()
+#
+#                         self.show_activations(all_data[idx], layer_name='predictions', filter_idx=class_idx,
+#                                               prefix="%s-%s-%d-%d" % (key, img_id, all_labels[idx], class_idx))
+#
+#                     for class_idx in range(self.num_classes):
+#                         print('-- show_saliency_maps')
+#                         sys.stdout.flush()
+#
+#                         self.show_saliency_maps(layer_name='predictions', class_idx=class_idx, input_img=all_data[idx], backprop_modifier='guided',
+#                                                 grad_modifier=None, prefix="%s-%s-%d-%d" % (key, img_id, all_labels[idx], class_idx))
+#
+#         else:
+#
+#             # -- starting the training stage
+#             self.training(all_data[train_idxs], all_labels[train_idxs], x_validation=all_data[test_idxs], y_validation=all_labels[test_idxs])
+#
+#             # -- testing
+#             predictions = self.testing(all_data[test_idxs], all_labels[test_idxs])
+#             int_samples = self.interesting_samples(all_fnames, test_idxs, predictions)
+#
+#             json_fname = os.path.join(self.output_path, 'int_samples.json')
+#             with open(json_fname, mode='w') as f:
+#                 print("--saving json file:", json_fname)
+#                 sys.stdout.flush()
+#                 f.write(json.dumps(int_samples, indent=4))
+#
+#         return predictions, []
+#
+#     def feature_vectors_average_by_class(self, layer_name, class_idx, input_img, backprop_modifier='guided', grad_modifier=None, prefix=''):
+#         model = self.archtecture_definition()
+#         model.load_weights(self.output_weights)
+#         print('Model loaded.')
+#         print(model.summary())
+#
+#

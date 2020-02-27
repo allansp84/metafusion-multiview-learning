@@ -1,0 +1,183 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>antispoofing.mcnns.controller package &#8212; MCNNs 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MCNNs 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="antispoofing-mcnns-controller-package">
+<h1>antispoofing.mcnns.controller package<a class="headerlink" href="#antispoofing-mcnns-controller-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-antispoofing.mcnns.controller.controller">
+<span id="antispoofing-mcnns-controller-controller-module"></span><h2>antispoofing.mcnns.controller.controller module<a class="headerlink" href="#module-antispoofing.mcnns.controller.controller" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="antispoofing.mcnns.controller.controller.Controller">
+<em class="property">class </em><code class="descclassname">antispoofing.mcnns.controller.controller.</code><code class="descname">Controller</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/controller/controller.html#Controller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.controller.controller.Controller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class implements the Controller responsible for managing the main steps of our pipeline and its input and output directories.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ol class="last arabic simple">
+<li>For now, only the classification module is being used.</li>
+</ol>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> (<em>ArgumentParser</em>) – Object that contains the options provided on the command line.</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="antispoofing.mcnns.controller.controller.Controller.args">
+<code class="descname">args</code><a class="headerlink" href="#antispoofing.mcnns.controller.controller.Controller.args" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>ArgumentParser</em> – Contains the options provided by the user on the command line.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="antispoofing.mcnns.controller.controller.Controller.data">
+<code class="descname">data</code><a class="headerlink" href="#antispoofing.mcnns.controller.controller.Controller.data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Dataset</em> – The dataset to be processed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="antispoofing.mcnns.controller.controller.Controller.data_b">
+<code class="descname">data_b</code><a class="headerlink" href="#antispoofing.mcnns.controller.controller.Controller.data_b" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Dataset</em> – A secondary dataset to be used as testing in the cross-dataset protocol.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="antispoofing.mcnns.controller.controller.Controller.n_jobs">
+<code class="descname">n_jobs</code><a class="headerlink" href="#antispoofing.mcnns.controller.controller.Controller.n_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> – Number of processor(s) considered for the parallel execution.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.controller.controller.Controller.classification">
+<code class="descname">classification</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/controller/controller.html#Controller.classification"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.controller.controller.Controller.classification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method responsible for executing the classification step.</p>
+<p>This method is responsible for managing the classification step, creating and running the Classifier according to the input
+arguments provided on the command line by the user, such as classification algorithm and its parameters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.controller.controller.Controller.feature_extraction">
+<code class="descname">feature_extraction</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/controller/controller.html#Controller.feature_extraction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.controller.controller.Controller.feature_extraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method responsible for extracting the feature vectors of each image into the dataset.</p>
+<p>This method is responsible for creating and running the Extraction object, which takes as input the filename of the image
+to be processed and its respective output filename. In case the user opts for processing the images in parallel, this method will
+create a pool of Extraction object, one for each image, which will be processed in parallel using the package multiprocessing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.controller.controller.Controller.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/controller/controller.html#Controller.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.controller.controller.Controller.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method responsible for executing the steps of our pipeline.</p>
+<p>This is the main method of the class Controller responsible for executing the steps of our pipeline, according to the input
+arguments provided on the command line by the user.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-antispoofing.mcnns.controller">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-antispoofing.mcnns.controller" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">antispoofing.mcnns.controller package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-antispoofing.mcnns.controller.controller">antispoofing.mcnns.controller.controller module</a></li>
+<li><a class="reference internal" href="#module-antispoofing.mcnns.controller">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/antispoofing.mcnns.controller.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MCNNs 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, ND Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

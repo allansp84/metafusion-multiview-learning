@@ -1,0 +1,435 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>antispoofing.mcnns.classification package &#8212; MCNNs 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MCNNs 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="antispoofing-mcnns-classification-package">
+<h1>antispoofing.mcnns.classification package<a class="headerlink" href="#antispoofing-mcnns-classification-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-antispoofing.mcnns.classification.baseclassifier">
+<span id="antispoofing-mcnns-classification-baseclassifier-module"></span><h2>antispoofing.mcnns.classification.baseclassifier module<a class="headerlink" href="#module-antispoofing.mcnns.classification.baseclassifier" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="antispoofing.mcnns.classification.baseclassifier.BaseClassifier">
+<em class="property">class </em><code class="descclassname">antispoofing.mcnns.classification.baseclassifier.</code><code class="descname">BaseClassifier</code><span class="sig-paren">(</span><em>output_path</em>, <em>dataset</em>, <em>fold=0</em>, <em>dataset_b=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/classification/baseclassifier.html#BaseClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.classification.baseclassifier.BaseClassifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Abstract Class that will be the super-class of the others classes responsible for implementing the Classification.</p>
+<p>This Class implements the common methods that will be use for all subclasses and also defines two methods, training() and testing(),
+that must me implemented by the subclasses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>output_path</strong> (<em>str</em>) – A path where the results and intermediate files will be saved.</li>
+<li><strong>dataset</strong> (<a class="reference internal" href="antispoofing.mcnns.datasets.html#antispoofing.mcnns.datasets.dataset.Dataset" title="antispoofing.mcnns.datasets.dataset.Dataset"><em>Dataset</em></a>) – A Dataset object containing the metadata of the dataset that will be used.</li>
+<li><strong>fold</strong> (<em>int</em>) – Tell which fold will be used during the processing.</li>
+<li><strong>dataset_b</strong> (<a class="reference internal" href="antispoofing.mcnns.datasets.html#antispoofing.mcnns.datasets.dataset.Dataset" title="antispoofing.mcnns.datasets.dataset.Dataset"><em>Dataset</em></a>) – A secondary dataset that will be used in the cross-dataset protocol.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="staticmethod">
+<dt id="antispoofing.mcnns.classification.baseclassifier.BaseClassifier.classification_results_summary">
+<em class="property">static </em><code class="descname">classification_results_summary</code><span class="sig-paren">(</span><em>report</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/classification/baseclassifier.html#BaseClassifier.classification_results_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.classification_results_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is responsible for printing a summary of the classification results.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>report</strong> (<em>dict</em>) – A dictionary containing the measures (e.g., Acc, APCER)  computed for each test set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.classification.baseclassifier.BaseClassifier.interesting_samples">
+<code class="descname">interesting_samples</code><span class="sig-paren">(</span><em>all_fnames</em>, <em>test_sets</em>, <em>class_report</em>, <em>predictions</em>, <em>threshold_type='EER'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/classification/baseclassifier.html#BaseClassifier.interesting_samples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.interesting_samples" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method persists a dictionary containing interesting samples for later visual assessments, which contains the filenames of
+the samples that were incorrectly classified.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>all_fnames</strong> (<em>numpy.ndarray</em>) – A list containing the filename for each image in the dataset.</li>
+<li><strong>test_sets</strong> (<em>dict</em>) – A dictionary containing the data and the labels for all testing sets that compose the dataset.</li>
+<li><strong>class_report</strong> (<em>dict</em>) – A dictionary containing several evaluation measures for each testing set.</li>
+<li><strong>predictions</strong> (<em>dict</em>) – A dictionary containing the predicted scores and labels for each testing set.</li>
+<li><strong>threshold_type</strong> (<em>str</em>) – Defines what threshold will be considered for deciding the false acceptance and false rejections.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.classification.baseclassifier.BaseClassifier.performance_evaluation">
+<code class="descname">performance_evaluation</code><span class="sig-paren">(</span><em>predictions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/classification/baseclassifier.html#BaseClassifier.performance_evaluation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.performance_evaluation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the performance of the fitted model for each test set.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>predictions</strong> (<em>dict</em>) – A dictionary with the ground-truth, the predicted scores and the predicted labels for the testing data. For Exemple: {‘test’: {‘gt’: y_test, ‘predicted_labels’: y_pred, ‘predicted_scores’: y_scores}}</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dictionary containing the performance results for each testing set. For example: {‘test’: {‘acc’: acc, ‘apcer’: apcer, ‘bpcer’: bpcer}}</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="antispoofing.mcnns.classification.baseclassifier.BaseClassifier.plot_crossover_error_rate">
+<em class="property">static </em><code class="descname">plot_crossover_error_rate</code><span class="sig-paren">(</span><em>neg_scores</em>, <em>pos_scores</em>, <em>filename</em>, <em>n_points=1000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/classification/baseclassifier.html#BaseClassifier.plot_crossover_error_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.plot_crossover_error_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: Not ready yet.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>neg_scores</strong> (<em>numpy.ndarray</em>) – </li>
+<li><strong>pos_scores</strong> (<em>numpy.ndarray</em>) – </li>
+<li><strong>filename</strong> (<em>str</em>) – </li>
+<li><strong>n_points</strong> (<em>int</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.classification.baseclassifier.BaseClassifier.plot_score_distributions">
+<code class="descname">plot_score_distributions</code><span class="sig-paren">(</span><em>thresholds</em>, <em>neg_scores</em>, <em>pos_scores</em>, <em>set_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/classification/baseclassifier.html#BaseClassifier.plot_score_distributions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.plot_score_distributions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the score distribution for a binary classification problem.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>thresholds</strong> (<em>list</em>) – A list of tuples containing the types and the values of the thresholds applied in this work.</li>
+<li><strong>neg_scores</strong> (<em>numpy.ndarray</em>) – The scores for the negative class.</li>
+<li><strong>pos_scores</strong> (<em>numpy.ndarray</em>) – The scores for the positive class.</li>
+<li><strong>set_name</strong> (<em>str</em>) – Name of the set used for computing the scores</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.classification.baseclassifier.BaseClassifier.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/classification/baseclassifier.html#BaseClassifier.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the classification step.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.classification.baseclassifier.BaseClassifier.run_evaluation_protocol">
+<code class="descname">run_evaluation_protocol</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/classification/baseclassifier.html#BaseClassifier.run_evaluation_protocol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.run_evaluation_protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method implements the whole training and testing process considering the evaluation protocol defined for the dataset.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.classification.baseclassifier.BaseClassifier.save_performance_results">
+<code class="descname">save_performance_results</code><span class="sig-paren">(</span><em>class_report</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/classification/baseclassifier.html#BaseClassifier.save_performance_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.save_performance_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the performance results in a .json file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>class_report</strong> (<em>dict</em>) – A dictionary containing the evaluation results for each testing set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.classification.baseclassifier.BaseClassifier.testing">
+<code class="descname">testing</code><span class="sig-paren">(</span><em>x_test</em>, <em>y_test</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/classification/baseclassifier.html#BaseClassifier.testing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.testing" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method implements the testing stage.</p>
+<p>The testing stage will be implemented by the subclasses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x_test</strong> (<em>numpy.ndarray</em>) – A multidimensional array containing the feature vectors (or images) to be used to test the classifier.</li>
+<li><strong>y_test</strong> (<em>numpy.ndarray</em>) – A multidimensional array containing the labels refers to the feature vectors that will be used to test the classification model.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">y_test, ‘predicted_labels’: y_pred, ‘predicted_scores’: y_scores}</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">A dictionary with the ground-truth, the predicted scores and the predicted labels for the testing data, such as {‘gt’</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.classification.baseclassifier.BaseClassifier.training">
+<code class="descname">training</code><span class="sig-paren">(</span><em>x_train</em>, <em>y_train</em>, <em>x_validation=None</em>, <em>y_validation=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/classification/baseclassifier.html#BaseClassifier.training"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.training" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method implements the training stage.</p>
+<p>The training stage will be implemented by the subclasses, taking into account the particularities of the classification algorithm to be used.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x_train</strong> (<em>numpy.ndarray</em>) – A multidimensional array containing the feature vectors (or images) to be used to train a classifier.</li>
+<li><strong>y_train</strong> (<em>numpy.ndarray</em>) – A multidimensional array containing the labels refers to the feature vectors that will be used during the training stage.</li>
+<li><strong>x_validation</strong> (<em>numpy.ndarray</em><em>, </em><em>optional</em>) – A multidimensional array containing the feature vectors (or images) to be used to test the classifier.</li>
+<li><strong>y_validation</strong> (<em>numpy.ndarray</em><em>, </em><em>optional</em>) – A multidimensional array containing the labels refers to the feature vectors that will be used for testing the classification model.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-antispoofing.mcnns.classification.cnn">
+<span id="antispoofing-mcnns-classification-cnn-module"></span><h2>antispoofing.mcnns.classification.cnn module<a class="headerlink" href="#module-antispoofing.mcnns.classification.cnn" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="antispoofing.mcnns.classification.cnn.CNN">
+<em class="property">class </em><code class="descclassname">antispoofing.mcnns.classification.cnn.</code><code class="descname">CNN</code><span class="sig-paren">(</span><em>output_path</em>, <em>dataset</em>, <em>dataset_b=None</em>, <em>input_shape=200</em>, <em>epochs=50</em>, <em>batch_size=8</em>, <em>loss_function='categorical_crossentropy'</em>, <em>lr=0.01</em>, <em>decay=0.0005</em>, <em>optimizer='SGD'</em>, <em>regularization=0.1</em>, <em>device_number=0</em>, <em>force_train=False</em>, <em>filter_vis=False</em>, <em>layers_name=('conv_1'</em>, <em>)</em>, <em>fold=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/classification/cnn.html#CNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.classification.cnn.CNN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#antispoofing.mcnns.classification.baseclassifier.BaseClassifier" title="antispoofing.mcnns.classification.baseclassifier.BaseClassifier"><code class="xref py py-class docutils literal"><span class="pre">antispoofing.mcnns.classification.baseclassifier.BaseClassifier</span></code></a></p>
+<p>This class implements a detector for iris-based spoofing using a shallow Convolutional Neural Network (CNN).</p>
+<p>In this class, we define the architecture of our model and we implement the learning stage and the testing stage. Due to the huge
+amount of options available to implement the learning stage, we decide to parametizer the main components of this stage in order to
+find the best learning parameters for achieving a good classification result. In this way, for instance, it’s possible to choose the
+loss function, the optimizer, so on, using the command line interface.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>output_path</strong> (<em>str</em>) – </li>
+<li><strong>dataset</strong> (<a class="reference internal" href="antispoofing.mcnns.datasets.html#antispoofing.mcnns.datasets.dataset.Dataset" title="antispoofing.mcnns.datasets.dataset.Dataset"><em>Dataset</em></a>) – </li>
+<li><strong>dataset_b</strong> (<a class="reference internal" href="antispoofing.mcnns.datasets.html#antispoofing.mcnns.datasets.dataset.Dataset" title="antispoofing.mcnns.datasets.dataset.Dataset"><em>Dataset</em></a>) – </li>
+<li><strong>input_shape</strong> (<em>int</em>) – Defaults to 200.</li>
+<li><strong>epochs</strong> (<em>int</em>) – Defaults to 50.</li>
+<li><strong>batch_size</strong> (<em>int</em>) – Defaults to 8.</li>
+<li><strong>loss_function</strong> (<em>str</em>) – Defaults to ‘categorical_crossentropy’.</li>
+<li><strong>lr</strong> (<em>float</em>) – Defaults to 0.01.</li>
+<li><strong>decay</strong> (<em>float</em>) – Defaults to 0.0005.</li>
+<li><strong>optimizer</strong> (<em>str</em>) – Defaults to ‘SGD’.</li>
+<li><strong>regularization</strong> (<em>float</em>) – Defaults to 0.1.</li>
+<li><strong>device_number</strong> (<em>int</em>) – Defaults to 0.</li>
+<li><strong>force_train</strong> (<em>bool</em>) – Defaults to False.</li>
+<li><strong>filter_vis</strong> (<em>bool</em>) – Defaults to False.</li>
+<li><strong>layers_name</strong> (<em>tuple</em>) – Defaults to (‘conv_1’,).</li>
+<li><strong>fold</strong> (<em>int</em>) – (default: 0)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="antispoofing.mcnns.classification.cnn.CNN.architecture_definition">
+<code class="descname">architecture_definition</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/classification/cnn.html#CNN.architecture_definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.classification.cnn.CNN.architecture_definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>In this method we define the architecture of our CNN.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.classification.cnn.CNN.fit_model">
+<code class="descname">fit_model</code><span class="sig-paren">(</span><em>x_train</em>, <em>y_train</em>, <em>x_validation=None</em>, <em>y_validation=None</em>, <em>class_weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/classification/cnn.html#CNN.fit_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.classification.cnn.CNN.fit_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a model classification.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x_train</strong> (<em>numpy.ndarray</em>) – A multidimensional array containing the feature vectors (or images) to be used to train a classifier.</li>
+<li><strong>y_train</strong> (<em>numpy.ndarray</em>) – A multidimensional array containing the labels refers to the feature vectors that will be used during the training stage.</li>
+<li><strong>x_validation</strong> (<em>numpy.ndarray</em><em>, </em><em>optional</em>) – A multidimensional array containing the feature vectors (or images) to be used to test the classifier.</li>
+<li><strong>y_validation</strong> (<em>numpy.ndarray</em><em>, </em><em>optional</em>) – A multidimensional array containing the labels refers to the feature vectors that will be used for testing the classification model.</li>
+<li><strong>class_weights</strong> (<em>dict</em>) – A dictionary containig class weights for unbalanced datasets.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.classification.cnn.CNN.saving_training_history">
+<code class="descname">saving_training_history</code><span class="sig-paren">(</span><em>history</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/classification/cnn.html#CNN.saving_training_history"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.classification.cnn.CNN.saving_training_history" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saving the plot containg the training history.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>history</strong> (<em>dict</em>) – A dictionary containing the values of accuracy and losses obtainied in each epoch of the learning stage.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.classification.cnn.CNN.set_gpu_configuration">
+<code class="descname">set_gpu_configuration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/classification/cnn.html#CNN.set_gpu_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.classification.cnn.CNN.set_gpu_configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is responsible for setting up which GPU will be used during the processing and some configurations related
+to GPU memory usage when the TensorFlow is used as backend.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.classification.cnn.CNN.testing">
+<code class="descname">testing</code><span class="sig-paren">(</span><em>x_test</em>, <em>y_test</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/classification/cnn.html#CNN.testing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.classification.cnn.CNN.testing" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is responsible for testing the fitted model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x_test</strong> (<em>numpy.ndarray</em>) – Testing data</li>
+<li><strong>y_test</strong> (<em>numpy.ndarray</em>) – Labels of the Testing data</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A dictionary with the ground-truth, the predicted scores and the predicted labels for the testing data, such as {‘gt’: y_test, ‘predicted_labels’: y_pred, ‘predicted_scores’: y_scores}</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.classification.cnn.CNN.training">
+<code class="descname">training</code><span class="sig-paren">(</span><em>x_train</em>, <em>y_train</em>, <em>x_validation=None</em>, <em>y_validation=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/classification/cnn.html#CNN.training"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.classification.cnn.CNN.training" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method implements the training process of our CNN.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x_train</strong> (<em>numpy.ndarray</em>) – Training data</li>
+<li><strong>y_train</strong> (<em>numpy.ndarray</em>) – Labels of the training data</li>
+<li><strong>x_validation</strong> (<em>numpy.ndarray</em><em>, </em><em>optional</em>) – Testing data. Defaults to None.</li>
+<li><strong>y_validation</strong> (<em>numpy.ndarray</em><em>, </em><em>optional</em>) – Labels of the testing data. Defaults to None.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-antispoofing.mcnns.classification">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-antispoofing.mcnns.classification" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">antispoofing.mcnns.classification package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-antispoofing.mcnns.classification.baseclassifier">antispoofing.mcnns.classification.baseclassifier module</a></li>
+<li><a class="reference internal" href="#module-antispoofing.mcnns.classification.cnn">antispoofing.mcnns.classification.cnn module</a></li>
+<li><a class="reference internal" href="#module-antispoofing.mcnns.classification">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/antispoofing.mcnns.classification.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MCNNs 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, ND Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

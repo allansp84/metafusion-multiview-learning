@@ -1,0 +1,394 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>antispoofing.mcnns.datasets package &#8212; MCNNs 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MCNNs 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="antispoofing-mcnns-datasets-package">
+<h1>antispoofing.mcnns.datasets package<a class="headerlink" href="#antispoofing-mcnns-datasets-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-antispoofing.mcnns.datasets.dataset">
+<span id="antispoofing-mcnns-datasets-dataset-module"></span><h2>antispoofing.mcnns.datasets.dataset module<a class="headerlink" href="#module-antispoofing.mcnns.datasets.dataset" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="antispoofing.mcnns.datasets.dataset.Dataset">
+<em class="property">class </em><code class="descclassname">antispoofing.mcnns.datasets.dataset.</code><code class="descname">Dataset</code><span class="sig-paren">(</span><em>dataset_path</em>, <em>output_path</em>, <em>iris_location</em>, <em>file_types</em>, <em>operation</em>, <em>max_axis</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/dataset.html#Dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.dataset.Dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Abstract base class for the dataset that will be used.</p>
+<p>This abstract base class implements the cropping operation of the images that will be used in this work since this operation is
+independent of the dataset in use. Also this base class defines two methods that must me implemented by the subclasses, that is, the
+build_meta and protocol_eval methods. The build_meta contains the code responsible for creating the metadata of the dataset such as
+filenames, labels, indexes and some hash structures for all subsets contained into thet dataset. The protocol_eval method implements
+the evaluation protocol of the dataset.</p>
+<dl class="method">
+<dt id="antispoofing.mcnns.datasets.dataset.Dataset.build_meta">
+<code class="descname">build_meta</code><span class="sig-paren">(</span><em>in_path</em>, <em>file_types</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/dataset.html#Dataset.build_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.dataset.Dataset.build_meta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.datasets.dataset.Dataset.get_imgs">
+<code class="descname">get_imgs</code><span class="sig-paren">(</span><em>input_fnames</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/dataset.html#Dataset.get_imgs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.dataset.Dataset.get_imgs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.datasets.dataset.Dataset.info">
+<code class="descname">info</code><span class="sig-paren">(</span><em>meta_info</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/dataset.html#Dataset.info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.dataset.Dataset.info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="antispoofing.mcnns.datasets.dataset.Dataset.list_dirs">
+<em class="property">static </em><code class="descname">list_dirs</code><span class="sig-paren">(</span><em>roo_tpath</em>, <em>file_types</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/dataset.html#Dataset.list_dirs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.dataset.Dataset.list_dirs" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns the name of the subfolders that contain, at least, one file whose type is into the list file_types.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>roo_tpath</strong> (<em>str</em>) – </li>
+<li><strong>file_types</strong> (<em>Tuple</em><em>[</em><em>str</em><em>]</em>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Subfolders that contains at least one file of interest.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="antispoofing.mcnns.datasets.dataset.Dataset.meta_info">
+<code class="descname">meta_info</code><a class="headerlink" href="#antispoofing.mcnns.datasets.dataset.Dataset.meta_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Metadata of the images.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary contaning the metadata.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.datasets.dataset.Dataset.meta_info_feats">
+<code class="descname">meta_info_feats</code><span class="sig-paren">(</span><em>output_path</em>, <em>file_types</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/dataset.html#Dataset.meta_info_feats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.dataset.Dataset.meta_info_feats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Metadata of the feature vectors.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>output_path</strong> – </li>
+<li><strong>file_types</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A dictionary contaning the metadata.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.datasets.dataset.Dataset.protocol_eval">
+<code class="descname">protocol_eval</code><span class="sig-paren">(</span><em>fold=0</em>, <em>n_fold=5</em>, <em>test_size=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/dataset.html#Dataset.protocol_eval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.dataset.Dataset.protocol_eval" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.datasets.dataset.Dataset.prune_train_dataset">
+<code class="descname">prune_train_dataset</code><span class="sig-paren">(</span><em>all_labels</em>, <em>train_idxs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/dataset.html#Dataset.prune_train_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.dataset.Dataset.prune_train_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is responsible for pruning an input subset in order to get a balanced dataset in terms of their classes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>all_labels</strong> (<em>numpy.ndarray</em>) – </li>
+<li><strong>train_idxs</strong> (<em>numpy.ndarray</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-antispoofing.mcnns.datasets.forannotation">
+<span id="antispoofing-mcnns-datasets-forannotation-module"></span><h2>antispoofing.mcnns.datasets.forannotation module<a class="headerlink" href="#module-antispoofing.mcnns.datasets.forannotation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="antispoofing.mcnns.datasets.forannotation.ForAnnotation">
+<em class="property">class </em><code class="descclassname">antispoofing.mcnns.datasets.forannotation.</code><code class="descname">ForAnnotation</code><span class="sig-paren">(</span><em>dataset_path</em>, <em>ground_truth_path=''</em>, <em>permutation_path=''</em>, <em>iris_location=''</em>, <em>output_path='./working'</em>, <em>file_types=('.png'</em>, <em>'.bmp'</em>, <em>'.jpg'</em>, <em>'.tiff')</em>, <em>operation='crop'</em>, <em>max_axis=320</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/forannotation.html#ForAnnotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.forannotation.ForAnnotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#antispoofing.mcnns.datasets.dataset.Dataset" title="antispoofing.mcnns.datasets.dataset.Dataset"><code class="xref py py-class docutils literal"><span class="pre">antispoofing.mcnns.datasets.dataset.Dataset</span></code></a></p>
+<dl class="method">
+<dt id="antispoofing.mcnns.datasets.forannotation.ForAnnotation.build_meta">
+<code class="descname">build_meta</code><span class="sig-paren">(</span><em>inpath</em>, <em>filetypes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/forannotation.html#ForAnnotation.build_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.forannotation.ForAnnotation.build_meta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.datasets.forannotation.ForAnnotation.protocol_eval">
+<code class="descname">protocol_eval</code><span class="sig-paren">(</span><em>fold=0</em>, <em>n_fold=5</em>, <em>test_size=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/forannotation.html#ForAnnotation.protocol_eval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.forannotation.ForAnnotation.protocol_eval" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>fold</strong> – </li>
+<li><strong>n_fold</strong> – </li>
+<li><strong>test_size</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-antispoofing.mcnns.datasets.livdetiris17">
+<span id="antispoofing-mcnns-datasets-livdetiris17-module"></span><h2>antispoofing.mcnns.datasets.livdetiris17 module<a class="headerlink" href="#module-antispoofing.mcnns.datasets.livdetiris17" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="antispoofing.mcnns.datasets.livdetiris17.LivDetIris17">
+<em class="property">class </em><code class="descclassname">antispoofing.mcnns.datasets.livdetiris17.</code><code class="descname">LivDetIris17</code><span class="sig-paren">(</span><em>dataset_path</em>, <em>ground_truth_path=''</em>, <em>permutation_path=''</em>, <em>iris_location=''</em>, <em>output_path='./working'</em>, <em>file_types=('.png'</em>, <em>'.bmp'</em>, <em>'.jpg'</em>, <em>'.tiff')</em>, <em>operation='crop'</em>, <em>max_axis=320</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/livdetiris17.html#LivDetIris17"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.livdetiris17.LivDetIris17" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#antispoofing.mcnns.datasets.dataset.Dataset" title="antispoofing.mcnns.datasets.dataset.Dataset"><code class="xref py py-class docutils literal"><span class="pre">antispoofing.mcnns.datasets.dataset.Dataset</span></code></a></p>
+<p>Interface for the LivDet Iris 2017 dataset whose evaluation protocol is already defined by the orginizers.</p>
+<p>This class uses three auxiliary .text files provided by the LivDetIris2017’s organizers, in which is defined the sets for training,
+testing and the unknown test.</p>
+<dl class="method">
+<dt id="antispoofing.mcnns.datasets.livdetiris17.LivDetIris17.build_meta">
+<code class="descname">build_meta</code><span class="sig-paren">(</span><em>inpath</em>, <em>filetypes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/livdetiris17.html#LivDetIris17.build_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.livdetiris17.LivDetIris17.build_meta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.datasets.livdetiris17.LivDetIris17.protocol_eval">
+<code class="descname">protocol_eval</code><span class="sig-paren">(</span><em>fold=0</em>, <em>n_fold=5</em>, <em>test_size=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/livdetiris17.html#LivDetIris17.protocol_eval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.livdetiris17.LivDetIris17.protocol_eval" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method implement validation evaluation protocol for this dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>fold</strong> (<em>int</em>) – This parameter is not used since this dataset already has the predefined subsets.</li>
+<li><strong>n_fold</strong> (<em>int</em>) – This parameter is not used since this dataset already has the predefined subsets.</li>
+<li><strong>test_size</strong> (<em>float</em>) – This parameter is not used since this dataset already has the predefined subsets.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A dictionary containing the training and testing sets.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-antispoofing.mcnns.datasets.ndcld15">
+<span id="antispoofing-mcnns-datasets-ndcld15-module"></span><h2>antispoofing.mcnns.datasets.ndcld15 module<a class="headerlink" href="#module-antispoofing.mcnns.datasets.ndcld15" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="antispoofing.mcnns.datasets.ndcld15.NDCLD15">
+<em class="property">class </em><code class="descclassname">antispoofing.mcnns.datasets.ndcld15.</code><code class="descname">NDCLD15</code><span class="sig-paren">(</span><em>dataset_path</em>, <em>ground_truth_path=''</em>, <em>permutation_path=''</em>, <em>iris_location=''</em>, <em>output_path='./working'</em>, <em>file_types=('.png'</em>, <em>'.bmp'</em>, <em>'.jpg'</em>, <em>'.tiff')</em>, <em>operation='crop'</em>, <em>max_axis=320</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/ndcld15.html#NDCLD15"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.ndcld15.NDCLD15" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#antispoofing.mcnns.datasets.dataset.Dataset" title="antispoofing.mcnns.datasets.dataset.Dataset"><code class="xref py py-class docutils literal"><span class="pre">antispoofing.mcnns.datasets.dataset.Dataset</span></code></a></p>
+<p>Interface for the Notre Dame Contact Lenses Dataset 2015 (NDCLD15).</p>
+<p>Interface for the Notre Dame Contact Lenses Dataset 2015 (NDCLD15) whose evaluation protocol consists on randomly splitting the samples
+two equal sets, A and B. After that, we execute our method two times using the sets A and B to train and test a classification model,
+respectively, and next using the sets B and A, also to train and test another different classification model, respectively.
+This procedure is repeated by five times and, at the end, we report the mean of the accuracies from the 10 executions.</p>
+<dl class="method">
+<dt id="antispoofing.mcnns.datasets.ndcld15.NDCLD15.build_meta">
+<code class="descname">build_meta</code><span class="sig-paren">(</span><em>inpath</em>, <em>filetypes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/ndcld15.html#NDCLD15.build_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.ndcld15.NDCLD15.build_meta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.datasets.ndcld15.NDCLD15.protocol_eval">
+<code class="descname">protocol_eval</code><span class="sig-paren">(</span><em>fold=0</em>, <em>n_fold=5</em>, <em>test_size=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/ndcld15.html#NDCLD15.protocol_eval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.ndcld15.NDCLD15.protocol_eval" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method implement a 5vs2 cross-validation evaluation protocol.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>fold</strong> (<em>int</em>) – Number of the fold to be used for training and testing</li>
+<li><strong>n_fold</strong> (<em>int</em>) – Total number of folds to be splitted. Defaults to 5.</li>
+<li><strong>test_size</strong> (<em>float</em>) – Size of the testing set. Defaults to 50%.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A dictionary containing the training and testing sets.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-antispoofing.mcnns.datasets.ndcldpermutations">
+<span id="antispoofing-mcnns-datasets-ndcldpermutations-module"></span><h2>antispoofing.mcnns.datasets.ndcldpermutations module<a class="headerlink" href="#module-antispoofing.mcnns.datasets.ndcldpermutations" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="antispoofing.mcnns.datasets.ndcldpermutations.NDContactLenses">
+<em class="property">class </em><code class="descclassname">antispoofing.mcnns.datasets.ndcldpermutations.</code><code class="descname">NDContactLenses</code><span class="sig-paren">(</span><em>dataset_path</em>, <em>ground_truth_path=''</em>, <em>permutation_path=''</em>, <em>iris_location=''</em>, <em>output_path='./working'</em>, <em>file_types=('.png'</em>, <em>'.bmp'</em>, <em>'.jpg'</em>, <em>'.tiff')</em>, <em>operation='crop'</em>, <em>max_axis=320</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/ndcldpermutations.html#NDContactLenses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.ndcldpermutations.NDContactLenses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#antispoofing.mcnns.datasets.dataset.Dataset" title="antispoofing.mcnns.datasets.dataset.Dataset"><code class="xref py py-class docutils literal"><span class="pre">antispoofing.mcnns.datasets.dataset.Dataset</span></code></a></p>
+<dl class="method">
+<dt id="antispoofing.mcnns.datasets.ndcldpermutations.NDContactLenses.build_meta">
+<code class="descname">build_meta</code><span class="sig-paren">(</span><em>inpath</em>, <em>filetypes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/ndcldpermutations.html#NDContactLenses.build_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.ndcldpermutations.NDContactLenses.build_meta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.datasets.ndcldpermutations.NDContactLenses.read_permutation_file">
+<code class="descname">read_permutation_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/ndcldpermutations.html#NDContactLenses.read_permutation_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.ndcldpermutations.NDContactLenses.read_permutation_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-antispoofing.mcnns.datasets.ndcontactlenses">
+<span id="antispoofing-mcnns-datasets-ndcontactlenses-module"></span><h2>antispoofing.mcnns.datasets.ndcontactlenses module<a class="headerlink" href="#module-antispoofing.mcnns.datasets.ndcontactlenses" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="antispoofing.mcnns.datasets.ndcontactlenses.NDContactLenses">
+<em class="property">class </em><code class="descclassname">antispoofing.mcnns.datasets.ndcontactlenses.</code><code class="descname">NDContactLenses</code><span class="sig-paren">(</span><em>dataset_path</em>, <em>ground_truth_path=''</em>, <em>permutation_path=''</em>, <em>iris_location=''</em>, <em>output_path='./working'</em>, <em>file_types=('.png'</em>, <em>'.bmp'</em>, <em>'.jpg'</em>, <em>'.tiff')</em>, <em>operation='crop'</em>, <em>max_axis=320</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/ndcontactlenses.html#NDContactLenses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.ndcontactlenses.NDContactLenses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#antispoofing.mcnns.datasets.dataset.Dataset" title="antispoofing.mcnns.datasets.dataset.Dataset"><code class="xref py py-class docutils literal"><span class="pre">antispoofing.mcnns.datasets.dataset.Dataset</span></code></a></p>
+<dl class="method">
+<dt id="antispoofing.mcnns.datasets.ndcontactlenses.NDContactLenses.build_meta">
+<code class="descname">build_meta</code><span class="sig-paren">(</span><em>inpath</em>, <em>filetypes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/ndcontactlenses.html#NDContactLenses.build_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.ndcontactlenses.NDContactLenses.build_meta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="antispoofing.mcnns.datasets.ndcontactlenses.NDContactLenses.read_permutation_file">
+<code class="descname">read_permutation_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/datasets/ndcontactlenses.html#NDContactLenses.read_permutation_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.datasets.ndcontactlenses.NDContactLenses.read_permutation_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-antispoofing.mcnns.datasets.registered_datasets">
+<span id="antispoofing-mcnns-datasets-registered-datasets-module"></span><h2>antispoofing.mcnns.datasets.registered_datasets module<a class="headerlink" href="#module-antispoofing.mcnns.datasets.registered_datasets" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-antispoofing.mcnns.datasets">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-antispoofing.mcnns.datasets" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">antispoofing.mcnns.datasets package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-antispoofing.mcnns.datasets.dataset">antispoofing.mcnns.datasets.dataset module</a></li>
+<li><a class="reference internal" href="#module-antispoofing.mcnns.datasets.forannotation">antispoofing.mcnns.datasets.forannotation module</a></li>
+<li><a class="reference internal" href="#module-antispoofing.mcnns.datasets.livdetiris17">antispoofing.mcnns.datasets.livdetiris17 module</a></li>
+<li><a class="reference internal" href="#module-antispoofing.mcnns.datasets.ndcld15">antispoofing.mcnns.datasets.ndcld15 module</a></li>
+<li><a class="reference internal" href="#module-antispoofing.mcnns.datasets.ndcldpermutations">antispoofing.mcnns.datasets.ndcldpermutations module</a></li>
+<li><a class="reference internal" href="#module-antispoofing.mcnns.datasets.ndcontactlenses">antispoofing.mcnns.datasets.ndcontactlenses module</a></li>
+<li><a class="reference internal" href="#module-antispoofing.mcnns.datasets.registered_datasets">antispoofing.mcnns.datasets.registered_datasets module</a></li>
+<li><a class="reference internal" href="#module-antispoofing.mcnns.datasets">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/antispoofing.mcnns.datasets.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MCNNs 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, ND Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

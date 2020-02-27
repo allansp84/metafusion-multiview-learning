@@ -1,0 +1,461 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>antispoofing.mcnns.datasets.ndcontactlenses &#8212; MCNNs 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">MCNNs 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for antispoofing.mcnns.datasets.ndcontactlenses</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="k">import</span> <span class="n">glob</span>
+<span class="kn">from</span> <span class="nn">antispoofing.mcnns.datasets.dataset</span> <span class="k">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">antispoofing.mcnns.utils</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">pdb</span>
+
+
+<div class="viewcode-block" id="NDContactLenses"><a class="viewcode-back" href="../../../../antispoofing.mcnns.datasets.html#antispoofing.mcnns.datasets.ndcontactlenses.NDContactLenses">[docs]</a><span class="k">class</span> <span class="nc">NDContactLenses</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_path</span><span class="p">,</span> <span class="n">ground_truth_path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">permutation_path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">iris_location</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                 <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;./working&#39;</span><span class="p">,</span> <span class="n">file_types</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;.png&#39;</span><span class="p">,</span> <span class="s1">&#39;.bmp&#39;</span><span class="p">,</span> <span class="s1">&#39;.jpg&#39;</span><span class="p">,</span> <span class="s1">&#39;.tiff&#39;</span><span class="p">),</span>
+                 <span class="n">operation</span><span class="o">=</span><span class="s1">&#39;crop&#39;</span><span class="p">,</span> <span class="n">max_axis</span><span class="o">=</span><span class="mi">320</span><span class="p">,</span>
+                 <span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">NDContactLenses</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">iris_location</span><span class="p">,</span> <span class="n">file_types</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span> <span class="n">max_axis</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ground_truth_path</span> <span class="o">=</span> <span class="n">ground_truth_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">permutation_path</span> <span class="o">=</span> <span class="n">permutation_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">complete_gt</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;full_dataset&#39;</span> <span class="ow">in</span> <span class="n">ground_truth_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="NDContactLenses.read_permutation_file"><a class="viewcode-back" href="../../../../antispoofing.mcnns.datasets.html#antispoofing.mcnns.datasets.ndcontactlenses.NDContactLenses.read_permutation_file">[docs]</a>    <span class="k">def</span> <span class="nf">read_permutation_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">permutation_path</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">str</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">skip_header</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">permuts_index</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+        <span class="n">permuts_partition</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">permuts_index</span><span class="p">,</span> <span class="n">permuts_partition</span></div>
+
+    <span class="c1"># @profile</span>
+<div class="viewcode-block" id="NDContactLenses.build_meta"><a class="viewcode-back" href="../../../../antispoofing.mcnns.datasets.html#antispoofing.mcnns.datasets.ndcontactlenses.NDContactLenses.build_meta">[docs]</a>    <span class="k">def</span> <span class="nf">build_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inpath</span><span class="p">,</span> <span class="n">filetypes</span><span class="p">):</span>
+
+        <span class="n">img_idx</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">all_fnames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">all_labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">all_idxs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">train_idxs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">test_idxs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">unknown_test_idxs</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">transparent_idxs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">texture_idxs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">no_contact_lenses_idxs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">hash_sensor</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sequence_id_train</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sequence_id_test</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">hash_img_id</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># -- for debugging</span>
+        <span class="n">cosmetic_idxs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">toric_idxs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">contact_lenses_idxs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">liv_det_labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">labels_hash</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">sequence_id_transparent</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sequence_id_texture</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sequence_id_cosmetic</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sequence_id_toric</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sequence_id_no_contact_lenses</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sequence_id_contact_lenses</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">folders</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">list_dirs</span><span class="p">(</span><span class="n">inpath</span><span class="p">,</span> <span class="n">filetypes</span><span class="p">)]</span>
+        <span class="n">folders</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">folders</span><span class="p">)</span>
+        <span class="n">folders</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">folders</span><span class="p">))</span>
+
+        <span class="n">permuts_index</span><span class="p">,</span> <span class="n">permuts_partition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_permutation_file</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">complete_gt</span><span class="p">:</span>
+            <span class="c1"># -- from the permutation files</span>
+
+            <span class="n">SEQUENCE_ID_COL</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">SENSOR_ID_COL</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="n">CONTACTS_COL</span> <span class="o">=</span> <span class="mi">4</span>
+
+            <span class="n">gt_list</span><span class="p">,</span> <span class="n">gt_hash</span> <span class="o">=</span> <span class="n">read_csv_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ground_truth_path</span><span class="p">,</span> <span class="n">sequenceid_col</span><span class="o">=</span><span class="n">SEQUENCE_ID_COL</span><span class="p">)</span>
+
+            <span class="n">without_contact_lenses_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">gt_list</span><span class="p">[:,</span> <span class="n">CONTACTS_COL</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;N&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">with_contact_texture_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">gt_list</span><span class="p">[:,</span> <span class="n">CONTACTS_COL</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;T&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">with_contact_lenses</span> <span class="o">=</span> <span class="n">with_contact_texture_idxs</span>
+
+            <span class="n">idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">permuts_partition</span> <span class="o">==</span> <span class="s1">&#39;0.8&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">sequence_id_train</span> <span class="o">=</span> <span class="n">gt_list</span><span class="p">[</span><span class="n">permuts_index</span><span class="p">[</span><span class="n">idxs</span><span class="p">],</span> <span class="n">SEQUENCE_ID_COL</span><span class="p">]</span>
+
+            <span class="n">idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">permuts_partition</span> <span class="o">==</span> <span class="s1">&#39;0.2&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">sequence_id_test</span> <span class="o">=</span> <span class="n">gt_list</span><span class="p">[</span><span class="n">permuts_index</span><span class="p">[</span><span class="n">idxs</span><span class="p">],</span> <span class="n">SEQUENCE_ID_COL</span><span class="p">]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># -- from the full_dataset.csv file</span>
+
+            <span class="n">SEQUENCE_ID_COL</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="n">SENSOR_ID_COL</span> <span class="o">=</span> <span class="mi">36</span>
+            <span class="n">CONTACTS_COL</span> <span class="o">=</span> <span class="mi">50</span>                  <span class="c1"># -- &#39;Yes&#39;,  &#39;No&#39;,   &#39;NULL&#39;, &#39;Unknown&#39;</span>
+            <span class="n">CONTACTS_TYPE_COL</span> <span class="o">=</span> <span class="mi">51</span>             <span class="c1"># -- &#39;Soft&#39;, &#39;Hard&#39;, &#39;NULL&#39;, &#39;Unknown&#39;</span>
+            <span class="n">CONTACTS_TEXTURE_COL</span> <span class="o">=</span> <span class="mi">52</span>          <span class="c1"># -- &#39;Yes&#39;,  &#39;No&#39;,   &#39;NULL&#39;, &#39;Unknown&#39;</span>
+            <span class="n">CONTACTS_TORIC_COL</span> <span class="o">=</span> <span class="mi">53</span>            <span class="c1"># -- &#39;Yes&#39;,  &#39;No&#39;,   &#39;NULL&#39;, &#39;Unknown&#39;</span>
+            <span class="n">CONTACTS_COSMETIC_COL</span> <span class="o">=</span> <span class="mi">54</span>         <span class="c1"># -- &#39;Yes&#39;,  &#39;No&#39;,   &#39;NULL&#39;, &#39;Unknown&#39;</span>
+            <span class="n">TAG_LIST_COL</span> <span class="o">=</span> <span class="mi">61</span>                  <span class="c1"># -- manufacturer&#39;s name</span>
+
+            <span class="n">gt_list</span><span class="p">,</span> <span class="n">gt_hash</span> <span class="o">=</span> <span class="n">read_csv_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ground_truth_path</span><span class="p">,</span> <span class="n">sequenceid_col</span><span class="o">=</span><span class="n">SEQUENCE_ID_COL</span><span class="p">)</span>
+
+            <span class="c1"># -- for debugging</span>
+            <span class="n">with_contact_transparent_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">gt_list</span><span class="p">[:,</span> <span class="n">CONTACTS_TYPE_COL</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Soft&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">sequence_id_transparent</span> <span class="o">=</span> <span class="n">gt_list</span><span class="p">[</span><span class="n">with_contact_transparent_idxs</span><span class="p">,</span> <span class="n">SEQUENCE_ID_COL</span><span class="p">]</span>
+
+            <span class="n">with_contact_texture_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">gt_list</span><span class="p">[:,</span> <span class="n">CONTACTS_TEXTURE_COL</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Yes&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">sequence_id_texture</span> <span class="o">=</span> <span class="n">gt_list</span><span class="p">[</span><span class="n">with_contact_texture_idxs</span><span class="p">,</span> <span class="n">SEQUENCE_ID_COL</span><span class="p">]</span>
+
+            <span class="n">with_contact_cosmetic_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">gt_list</span><span class="p">[:,</span> <span class="n">CONTACTS_COSMETIC_COL</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Yes&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">sequence_id_cosmetic</span> <span class="o">=</span> <span class="n">gt_list</span><span class="p">[</span><span class="n">with_contact_cosmetic_idxs</span><span class="p">,</span> <span class="n">SEQUENCE_ID_COL</span><span class="p">]</span>
+
+            <span class="n">with_contact_toric_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">gt_list</span><span class="p">[:,</span> <span class="n">CONTACTS_TORIC_COL</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Yes&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">sequence_id_toric</span> <span class="o">=</span> <span class="n">gt_list</span><span class="p">[</span><span class="n">with_contact_toric_idxs</span><span class="p">,</span> <span class="n">SEQUENCE_ID_COL</span><span class="p">]</span>
+
+            <span class="n">without_contact_lenses_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">gt_list</span><span class="p">[:,</span> <span class="n">CONTACTS_COL</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;No&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">sequence_id_no_contact_lenses</span> <span class="o">=</span> <span class="n">gt_list</span><span class="p">[</span><span class="n">without_contact_lenses_idxs</span><span class="p">,</span> <span class="n">SEQUENCE_ID_COL</span><span class="p">]</span>
+
+            <span class="n">with_contact_lenses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">gt_list</span><span class="p">[:,</span> <span class="n">CONTACTS_COL</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Yes&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">sequence_id_contact_lenses</span> <span class="o">=</span> <span class="n">gt_list</span><span class="p">[</span><span class="n">with_contact_lenses</span><span class="p">,</span> <span class="n">SEQUENCE_ID_COL</span><span class="p">]</span>
+
+            <span class="n">sequence_id_tag_list</span> <span class="o">=</span> <span class="n">gt_list</span><span class="p">[:,</span> <span class="n">TAG_LIST_COL</span><span class="p">]</span>
+
+            <span class="c1"># rand_state = np.random.RandomState(7)</span>
+            <span class="c1"># rand_seq_id_no_lenses = rand_state.permutation(sequence_id_no_contact_lenses)</span>
+            <span class="c1"># rand_seq_id_lenses = rand_state.permutation(sequence_id_contact_lenses)</span>
+            <span class="c1"># n_without_lenses = len(rand_seq_id_no_lenses)</span>
+            <span class="c1"># n_with_lenses = len(rand_seq_id_lenses)</span>
+            <span class="c1"># sequence_id_train = np.concatenate((rand_seq_id_no_lenses[:n_without_lenses//2], rand_seq_id_lenses[:n_with_lenses//2]))</span>
+            <span class="c1"># sequence_id_test = np.concatenate((rand_seq_id_no_lenses[n_without_lenses//2:], rand_seq_id_lenses[n_with_lenses//2:]))</span>
+
+        <span class="n">sequence_id_pos_class</span> <span class="o">=</span> <span class="n">gt_list</span><span class="p">[</span><span class="n">with_contact_lenses</span><span class="p">,</span> <span class="n">SEQUENCE_ID_COL</span><span class="p">]</span>
+        <span class="n">sequence_id_neg_class</span> <span class="o">=</span> <span class="n">gt_list</span><span class="p">[</span><span class="n">without_contact_lenses_idxs</span><span class="p">,</span> <span class="n">SEQUENCE_ID_COL</span><span class="p">]</span>
+
+        <span class="c1"># if self.verbose:</span>
+        <span class="c1">#     print(&#39;with_contact_texture_idxs&#39;, with_contact_texture_idxs.shape)</span>
+        <span class="c1">#     print(&#39;without_contact_lenses_idxs&#39;, without_contact_lenses_idxs.shape)</span>
+        <span class="c1">#     print(&#39;sequence_id_pos_class&#39;, sequence_id_pos_class.shape)</span>
+        <span class="c1">#     print(&#39;sequence_id_neg_class&#39;, sequence_id_neg_class.shape)</span>
+        <span class="c1">#     sys.stdout.flush()</span>
+
+        <span class="n">liv_det_train_data</span><span class="p">,</span> <span class="n">liv_det_train_hash</span> <span class="o">=</span> <span class="n">read_csv_file</span><span class="p">(</span><span class="s1">&#39;extra/LivDet-Iris-2017_splits/livdet-train.txt&#39;</span><span class="p">,</span>
+                                                               <span class="n">sequenceid_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="n">liv_det_test_data</span><span class="p">,</span> <span class="n">liv_det_test_hash</span> <span class="o">=</span> <span class="n">read_csv_file</span><span class="p">(</span><span class="s1">&#39;extra/LivDet-Iris-2017_splits/livdet-test.txt&#39;</span><span class="p">,</span>
+                                                             <span class="n">sequenceid_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="n">liv_det_unknown_test_data</span><span class="p">,</span> <span class="n">liv_det_unknown_test_hash</span> <span class="o">=</span> <span class="n">read_csv_file</span><span class="p">(</span><span class="s1">&#39;extra/LivDet-Iris-2017_splits/livdet-unknown_test.txt&#39;</span><span class="p">,</span>
+                                                                             <span class="n">sequenceid_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+
+        <span class="n">img_without_labels</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">folder</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">folders</span><span class="p">):</span>
+            <span class="n">progressbar</span><span class="p">(</span><span class="s1">&#39;-- folders&#39;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">folders</span><span class="p">),</span> <span class="n">new_line</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">fnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inpath</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span> <span class="o">+</span> <span class="n">filetype</span><span class="p">))</span> <span class="k">for</span> <span class="n">filetype</span> <span class="ow">in</span> <span class="n">filetypes</span><span class="p">]</span>
+            <span class="n">fnames</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">fnames</span><span class="p">)</span>
+            <span class="n">fnames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">fnames</span><span class="p">))</span>
+
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">fname</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fnames</span><span class="p">):</span>
+
+                <span class="n">rel_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">inpath</span><span class="p">)</span>
+                <span class="n">img_id</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">rel_path</span><span class="p">))</span>
+                <span class="n">img_id</span> <span class="o">=</span> <span class="n">img_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="n">line</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]</span>
+                <span class="c1"># try:</span>
+                <span class="c1">#     line = gt_hash[img_id]</span>
+                <span class="c1"># except KeyError:</span>
+                <span class="c1">#     pass</span>
+
+                <span class="c1"># -- check if the current image is in the ground truth file</span>
+                <span class="k">if</span> <span class="n">line</span><span class="p">:</span>
+
+                    <span class="c1"># if img_id in sequence_id_train:</span>
+                    <span class="k">if</span> <span class="n">img_id</span> <span class="ow">in</span> <span class="n">liv_det_train_hash</span><span class="p">:</span>
+
+                        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">img_id</span> <span class="ow">in</span> <span class="n">hash_img_id</span><span class="p">):</span>
+                            <span class="n">hash_img_id</span><span class="p">[</span><span class="n">img_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">img_idx</span>
+                            <span class="n">train_idxs</span> <span class="o">+=</span> <span class="p">[</span><span class="n">img_idx</span><span class="p">]</span>
+                            <span class="n">all_labels</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">liv_det_train_data</span><span class="p">[</span><span class="n">liv_det_train_hash</span><span class="p">[</span><span class="n">img_id</span><span class="p">]][</span><span class="mi">1</span><span class="p">])]</span>
+                            <span class="n">all_fnames</span> <span class="o">+=</span> <span class="p">[</span><span class="n">fname</span><span class="p">]</span>
+                            <span class="n">all_idxs</span> <span class="o">+=</span> <span class="p">[</span><span class="n">img_idx</span><span class="p">]</span>
+                            <span class="n">img_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="c1"># hash_sensor += [gt_list[gt_hash[img_id]][SENSOR_ID_COL]]</span>
+                            <span class="c1"># all_labels += [self.POS_LABEL if img_id in sequence_id_pos_class else self.NEG_LABEL]</span>
+
+                    <span class="k">elif</span> <span class="n">img_id</span> <span class="ow">in</span> <span class="n">liv_det_test_hash</span><span class="p">:</span>
+
+                        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">img_id</span> <span class="ow">in</span> <span class="n">hash_img_id</span><span class="p">):</span>
+                            <span class="n">hash_img_id</span><span class="p">[</span><span class="n">img_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">img_idx</span>
+                            <span class="n">test_idxs</span> <span class="o">+=</span> <span class="p">[</span><span class="n">img_idx</span><span class="p">]</span>
+                            <span class="n">all_labels</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">liv_det_test_data</span><span class="p">[</span><span class="n">liv_det_test_hash</span><span class="p">[</span><span class="n">img_id</span><span class="p">]][</span><span class="mi">1</span><span class="p">])]</span>
+                            <span class="n">all_fnames</span> <span class="o">+=</span> <span class="p">[</span><span class="n">fname</span><span class="p">]</span>
+                            <span class="n">all_idxs</span> <span class="o">+=</span> <span class="p">[</span><span class="n">img_idx</span><span class="p">]</span>
+                            <span class="n">img_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                    <span class="c1"># elif img_id in sequence_id_test:</span>
+                    <span class="k">elif</span> <span class="n">img_id</span> <span class="ow">in</span> <span class="n">liv_det_unknown_test_hash</span><span class="p">:</span>
+
+                        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">img_id</span> <span class="ow">in</span> <span class="n">hash_img_id</span><span class="p">):</span>
+                            <span class="n">hash_img_id</span><span class="p">[</span><span class="n">img_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">img_idx</span>
+                            <span class="n">unknown_test_idxs</span> <span class="o">+=</span> <span class="p">[</span><span class="n">img_idx</span><span class="p">]</span>
+                            <span class="n">all_labels</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">liv_det_unknown_test_data</span><span class="p">[</span><span class="n">liv_det_unknown_test_hash</span><span class="p">[</span><span class="n">img_id</span><span class="p">]][</span><span class="mi">1</span><span class="p">])]</span>
+                            <span class="n">all_fnames</span> <span class="o">+=</span> <span class="p">[</span><span class="n">fname</span><span class="p">]</span>
+                            <span class="n">all_idxs</span> <span class="o">+=</span> <span class="p">[</span><span class="n">img_idx</span><span class="p">]</span>
+                            <span class="n">img_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="c1"># hash_sensor += [gt_list[gt_hash[img_id]][SENSOR_ID_COL]]</span>
+                            <span class="c1"># all_labels += [self.POS_LABEL if img_id in sequence_id_pos_class else self.NEG_LABEL]</span>
+
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># print(&#39;Image not found in the dataset!&#39;)</span>
+                        <span class="c1"># sys.stdout.flush()</span>
+                        <span class="k">pass</span>
+
+                    <span class="c1"># -- for debugging</span>
+                    <span class="c1"># if img_id in sequence_id_no_contact_lenses:</span>
+                    <span class="c1">#     no_contact_lenses_idxs += [img_idx]</span>
+                    <span class="c1">#     all_fnames += [fname]</span>
+                    <span class="c1">#     all_idxs += [img_idx]</span>
+                    <span class="c1">#     all_labels += [0]</span>
+                    <span class="c1">#     img_idx += 1</span>
+                    <span class="c1">#</span>
+                    <span class="c1">#     try:</span>
+                    <span class="c1">#         labels_hash[img_id] += [0]</span>
+                    <span class="c1">#     except KeyError:</span>
+                    <span class="c1">#         labels_hash[img_id] = [0]</span>
+                    <span class="c1">#</span>
+                    <span class="c1"># if img_id in sequence_id_texture:</span>
+                    <span class="c1">#     texture_idxs += [img_idx]</span>
+                    <span class="c1">#     all_fnames += [fname]</span>
+                    <span class="c1">#     all_idxs += [img_idx]</span>
+                    <span class="c1">#     all_labels += [1]</span>
+                    <span class="c1">#     img_idx += 1</span>
+                    <span class="c1">#</span>
+                    <span class="c1">#     try:</span>
+                    <span class="c1">#         labels_hash[img_id] += [1]</span>
+                    <span class="c1">#     except KeyError:</span>
+                    <span class="c1">#         labels_hash[img_id] = [1]</span>
+                    <span class="c1">#</span>
+                    <span class="c1"># if img_id in sequence_id_cosmetic:</span>
+                    <span class="c1">#     cosmetic_idxs += [img_idx]</span>
+                    <span class="c1">#     all_fnames += [fname]</span>
+                    <span class="c1">#     all_idxs += [img_idx]</span>
+                    <span class="c1">#     all_labels += [1]</span>
+                    <span class="c1">#     img_idx += 1</span>
+                    <span class="c1">#</span>
+                    <span class="c1">#     try:</span>
+                    <span class="c1">#         labels_hash[img_id] += [1]</span>
+                    <span class="c1">#     except KeyError:</span>
+                    <span class="c1">#         labels_hash[img_id] = [1]</span>
+                    <span class="c1">#</span>
+                    <span class="c1"># if img_id in sequence_id_transparent:</span>
+                    <span class="c1">#     transparent_idxs += [img_idx]</span>
+                    <span class="c1">#     all_fnames += [fname]</span>
+                    <span class="c1">#     all_idxs += [img_idx]</span>
+                    <span class="c1">#     all_labels += [1]</span>
+                    <span class="c1">#     img_idx += 1</span>
+                    <span class="c1">#</span>
+                    <span class="c1">#     try:</span>
+                    <span class="c1">#         labels_hash[img_id] += [1]</span>
+                    <span class="c1">#     except KeyError:</span>
+                    <span class="c1">#         labels_hash[img_id] = [1]</span>
+                    <span class="c1">#</span>
+                    <span class="c1"># if img_id in sequence_id_toric:</span>
+                    <span class="c1">#     toric_idxs += [img_idx]</span>
+                    <span class="c1">#     all_fnames += [fname]</span>
+                    <span class="c1">#     all_idxs += [img_idx]</span>
+                    <span class="c1">#     all_labels += [1]</span>
+                    <span class="c1">#     img_idx += 1</span>
+                    <span class="c1">#</span>
+                    <span class="c1">#     try:</span>
+                    <span class="c1">#         labels_hash[img_id] += [1]</span>
+                    <span class="c1">#     except KeyError:</span>
+                    <span class="c1">#         labels_hash[img_id] = [1]</span>
+                    <span class="c1">#</span>
+                    <span class="c1"># if img_id in sequence_id_contact_lenses:</span>
+                    <span class="c1">#     contact_lenses_idxs += [img_idx]</span>
+                    <span class="c1">#     all_fnames += [fname]</span>
+                    <span class="c1">#     all_idxs += [img_idx]</span>
+                    <span class="c1">#     all_labels += [1]</span>
+                    <span class="c1">#     img_idx += 1</span>
+                    <span class="c1">#</span>
+                    <span class="c1">#     try:</span>
+                    <span class="c1">#         labels_hash[img_id] += [1]</span>
+                    <span class="c1">#     except KeyError:</span>
+                    <span class="c1">#         labels_hash[img_id] = [1]</span>
+                    <span class="c1">#</span>
+                    <span class="c1"># else:</span>
+                    <span class="c1">#     img_without_labels += 1</span>
+                    <span class="c1">#     if not (img_id in labels_hash):</span>
+                    <span class="c1">#         labels_hash[img_id] = [fname, 1, &#39;none&#39;]</span>
+                    <span class="c1">#     else:</span>
+                    <span class="c1">#         print(&quot;Image is already in the hash [else]&quot;, img_id)</span>
+                    <span class="c1">#</span>
+                    <span class="c1"># try:</span>
+                    <span class="c1">#     liv_det_labels += [liv_det_train_data[liv_det_train_hash[img_id]]]</span>
+                    <span class="c1"># except KeyError:</span>
+                    <span class="c1">#     liv_det_labels += [9]</span>
+
+        <span class="n">all_fnames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_fnames</span><span class="p">)</span>
+        <span class="n">all_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_labels</span><span class="p">)</span>
+        <span class="n">all_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_idxs</span><span class="p">)</span>
+        <span class="n">train_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">train_idxs</span><span class="p">)</span>
+        <span class="n">test_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">test_idxs</span><span class="p">)</span>
+        <span class="n">unknown_test_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">unknown_test_idxs</span><span class="p">)</span>
+
+        <span class="c1"># train_idxs = self.prune_train_dataset(all_labels, train_idxs)</span>
+
+        <span class="c1"># -- for debugging</span>
+        <span class="c1"># dt = dict(names=(&#39;fname&#39;, &#39;label&#39;), formats=(&#39;U100&#39;, np.int))</span>
+        <span class="c1"># aux = zip()</span>
+        <span class="c1"># aux_ = np.array(list(aux), dtype=dt)</span>
+        <span class="c1"># check_train, base_names, base_names_liv_det_train, lenses_type = self.check(labels_hash, liv_det_train_hash, liv_det_train_data)</span>
+        <span class="c1"># idx = np.where(check_train == False)[0]</span>
+        <span class="c1"># np.savetxt(&#39;base_names_train.txt&#39;, base_names[idx], fmt=&#39;%s&#39;)</span>
+        <span class="c1"># np.savetxt(&#39;base_names_liv_det_train.txt&#39;, np.concatenate((base_names_liv_det_train[idx], lenses_type[idx]), axis=1), fmt=&#39;%s %s&#39;)</span>
+        <span class="c1">#</span>
+        <span class="c1"># check_test, base_names, base_names_liv_det_test, lenses_type = self.check(labels_hash, liv_det_test_hash, liv_det_test_data)</span>
+        <span class="c1"># idx = np.where(check_test == False)[0]</span>
+        <span class="c1"># np.savetxt(&#39;base_names_test.txt&#39;, base_names[idx], fmt=&#39;%s&#39;)</span>
+        <span class="c1"># np.savetxt(&#39;base_names_liv_det_test.txt&#39;, np.concatenate((base_names_liv_det_test[idx], lenses_type[idx]), axis=1), fmt=&#39;%s %s&#39;)</span>
+        <span class="c1">#</span>
+        <span class="c1"># check_unknown_test, base_names, base_names_liv_det_unknown_test, lenses_type = self.check(labels_hash, liv_det_unknown_test_hash, liv_det_unknown_test_data)</span>
+        <span class="c1"># idx = np.where(check_unknown_test == False)[0]</span>
+        <span class="c1"># np.savetxt(&#39;base_names_unknown_test.txt&#39;, base_names[idx], fmt=&#39;%s&#39;)</span>
+        <span class="c1"># np.savetxt(&#39;base_names_liv_det_unknown_test.txt&#39;, np.concatenate((base_names_liv_det_unknown_test[idx], lenses_type[idx]), axis=1), fmt=&#39;%s %s&#39;)</span>
+
+        <span class="c1"># if self.complete_gt:</span>
+        <span class="c1">#     pdb.set_trace()</span>
+
+        <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+
+        <span class="n">all_pos_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">all_labels</span><span class="p">[</span><span class="n">all_idxs</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">POS_LABEL</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">all_neg_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">all_labels</span><span class="p">[</span><span class="n">all_idxs</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">NEG_LABEL</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-- all_fnames:&quot;</span><span class="p">,</span> <span class="n">all_fnames</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-- all_labels:&quot;</span><span class="p">,</span> <span class="n">all_labels</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-- all_idxs:&quot;</span><span class="p">,</span> <span class="n">all_idxs</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-- train_idxs:&quot;</span><span class="p">,</span> <span class="n">train_idxs</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   -- pos:&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">all_labels</span><span class="p">[</span><span class="n">train_idxs</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">POS_LABEL</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   -- neg:&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">all_labels</span><span class="p">[</span><span class="n">train_idxs</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">NEG_LABEL</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-- test_idxs:&quot;</span><span class="p">,</span> <span class="n">test_idxs</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   -- pos:&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">all_labels</span><span class="p">[</span><span class="n">test_idxs</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">POS_LABEL</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   -- neg:&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">all_labels</span><span class="p">[</span><span class="n">test_idxs</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">NEG_LABEL</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-- unknown_test_idxs:&quot;</span><span class="p">,</span> <span class="n">unknown_test_idxs</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   -- pos:&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">all_labels</span><span class="p">[</span><span class="n">unknown_test_idxs</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">POS_LABEL</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   -- neg:&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">all_labels</span><span class="p">[</span><span class="n">unknown_test_idxs</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">NEG_LABEL</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+        <span class="n">r_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;all_fnames&#39;</span><span class="p">:</span> <span class="n">all_fnames</span><span class="p">,</span>
+                  <span class="s1">&#39;all_labels&#39;</span><span class="p">:</span> <span class="n">all_labels</span><span class="p">,</span>
+                  <span class="s1">&#39;all_idxs&#39;</span><span class="p">:</span> <span class="n">all_idxs</span><span class="p">,</span>
+
+                  <span class="s1">&#39;train_idxs&#39;</span><span class="p">:</span> <span class="n">train_idxs</span><span class="p">,</span>
+                  <span class="s1">&#39;test_idxs&#39;</span><span class="p">:</span> <span class="n">test_idxs</span><span class="p">,</span>
+                  <span class="s1">&#39;unknown_test_idxs&#39;</span><span class="p">:</span> <span class="n">unknown_test_idxs</span><span class="p">,</span>
+
+                  <span class="s1">&#39;all_pos_idxs&#39;</span><span class="p">:</span> <span class="n">all_pos_idxs</span><span class="p">,</span>
+                  <span class="s1">&#39;all_neg_idxs&#39;</span><span class="p">:</span> <span class="n">all_neg_idxs</span><span class="p">,</span>
+
+                  <span class="s1">&#39;texture_idxs&#39;</span><span class="p">:</span> <span class="n">texture_idxs</span><span class="p">,</span>
+                  <span class="s1">&#39;transparent_idxs&#39;</span><span class="p">:</span> <span class="n">transparent_idxs</span><span class="p">,</span>
+                  <span class="s1">&#39;no_contact_lenses_idxs&#39;</span><span class="p">:</span> <span class="n">no_contact_lenses_idxs</span><span class="p">,</span>
+
+                  <span class="s1">&#39;hash_img_id&#39;</span><span class="p">:</span> <span class="n">hash_img_id</span><span class="p">,</span>
+                  <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">r_dict</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">MCNNs 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, ND Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+#!/bin/csh
+
+#$ -q gpu@qa-titanx-014
+#$ -N hp-job
+#$ -pe smp 4
+
+setenv CUDA_VISIBLE_DEVICES `python auto-gpu.py`
+
+if ( $CUDA_VISIBLE_DEVICES == "none" ) then
+    echo "No GPUs available"
+else
+    # do stuff here
+    echo "gpu found"
+endif

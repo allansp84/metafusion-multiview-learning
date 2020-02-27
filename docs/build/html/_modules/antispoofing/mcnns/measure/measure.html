@@ -1,0 +1,607 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>antispoofing.mcnns.measure.measure &#8212; MCNNs 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">MCNNs 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for antispoofing.mcnns.measure.measure</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">antispoofing.mcnns.utils</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
+
+
+<div class="viewcode-block" id="split_score_distributions"><a class="viewcode-back" href="../../../../antispoofing.mcnns.measure.html#antispoofing.mcnns.measure.measure.split_score_distributions">[docs]</a><span class="k">def</span> <span class="nf">split_score_distributions</span><span class="p">(</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">predicted_scores</span><span class="p">,</span> <span class="n">label_neg</span><span class="p">,</span> <span class="n">label_pos</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Split the scores in negative and positive scores based on the ground-truth.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ground_truth (numpy.ndarray): Ground-truth.</span>
+<span class="sd">        predicted_scores (numpy.ndarray): The predicted scores.</span>
+<span class="sd">        label_neg (int): Label for the negative class.</span>
+<span class="sd">        label_pos (int):  Label for the positive class.</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># -- get the score distributions of positive and negative classes</span>
+    <span class="n">neg</span> <span class="o">=</span> <span class="p">[</span><span class="n">score</span> <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">predicted_scores</span><span class="p">)</span> <span class="k">if</span> <span class="n">label</span> <span class="o">==</span> <span class="n">label_neg</span><span class="p">]</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="p">[</span><span class="n">score</span> <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">predicted_scores</span><span class="p">)</span> <span class="k">if</span> <span class="n">label</span> <span class="o">==</span> <span class="n">label_pos</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">neg</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="predicted_labels_threshold"><a class="viewcode-back" href="../../../../antispoofing.mcnns.measure.html#antispoofing.mcnns.measure.measure.predicted_labels_threshold">[docs]</a><span class="k">def</span> <span class="nf">predicted_labels_threshold</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">label_neg</span><span class="p">,</span> <span class="n">label_pos</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This function compute the predicted labels for the testing set based on the their scores.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        scores (numpy.ndarray): A numpy array containing the predicted scores.</span>
+<span class="sd">        threshold (float): Threshold value.</span>
+<span class="sd">        label_neg (int): Label for the negative class.</span>
+<span class="sd">        label_pos (int):  Label for the positive class.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.ndarray: Return the predicted labels.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+
+    <span class="n">predicted_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">label_pos</span> <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;=</span> <span class="n">threshold</span> <span class="k">else</span> <span class="n">label_neg</span> <span class="k">for</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">scores</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">predicted_labels</span></div>
+
+
+<div class="viewcode-block" id="acc_threshold"><a class="viewcode-back" href="../../../../antispoofing.mcnns.measure.html#antispoofing.mcnns.measure.measure.acc_threshold">[docs]</a><span class="k">def</span> <span class="nf">acc_threshold</span><span class="p">(</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">label_neg</span><span class="p">,</span> <span class="n">label_pos</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Compute the Accuracy upon a given threshold.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ground_truth (numpy.ndarray): The ground-truth.</span>
+<span class="sd">        scores (numpy.ndarray): The predicted scores.</span>
+<span class="sd">        threshold (float): Threshold value.</span>
+<span class="sd">        label_neg (int): Label for the negative class.</span>
+<span class="sd">        label_pos (int):  Label for the positive class.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Return the balanced accuracy, whose value can varies between 0.0 and 1.0, which means the worst and the</span>
+<span class="sd">        perfect classification results, respectively.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+
+    <span class="n">n_scores</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+    <span class="n">predicted_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">label_pos</span> <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;=</span> <span class="n">threshold</span> <span class="k">else</span> <span class="n">label_neg</span> <span class="k">for</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">scores</span><span class="p">])</span>
+    <span class="n">acc</span> <span class="o">=</span> <span class="p">(</span><span class="n">predicted_labels</span> <span class="o">==</span> <span class="n">ground_truth</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">n_scores</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">acc</span></div>
+
+
+<div class="viewcode-block" id="balanced_accuracy"><a class="viewcode-back" href="../../../../antispoofing.mcnns.measure.html#antispoofing.mcnns.measure.measure.balanced_accuracy">[docs]</a><span class="k">def</span> <span class="nf">balanced_accuracy</span><span class="p">(</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">predicted_labels</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Compute the Balanced accuracy</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ground_truth (numpy.ndarray): The ground-truth.</span>
+<span class="sd">        predicted_labels (numpy.ndarray): The predicted labels.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Return the balanced accuracy, whose value can varies between 0.0 and 1.0, which means the worst and the</span>
+<span class="sd">        perfect classification results, respectively.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">categories</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">ground_truth</span><span class="p">)</span>
+
+    <span class="n">bal_acc</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">:</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ground_truth</span> <span class="o">==</span> <span class="n">cat</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">y_true_cat</span><span class="p">,</span> <span class="n">y_pred_cat</span> <span class="o">=</span> <span class="n">ground_truth</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">predicted_labels</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">tp</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_pred_cat</span><span class="p">))</span> <span class="k">if</span> <span class="n">y_true_cat</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="n">y_pred_cat</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span>
+        <span class="n">tp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">tp</span><span class="p">)</span>
+        <span class="n">bal_acc</span> <span class="o">+=</span> <span class="p">[</span><span class="n">tp</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_pred_cat</span><span class="p">))]</span>
+
+    <span class="n">bal_acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bal_acc</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">bal_acc</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="bacc_threshold"><a class="viewcode-back" href="../../../../antispoofing.mcnns.measure.html#antispoofing.mcnns.measure.measure.bacc_threshold">[docs]</a><span class="k">def</span> <span class="nf">bacc_threshold</span><span class="p">(</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">predicted_scores</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">label_neg</span><span class="p">,</span> <span class="n">label_pos</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Compute the Balanced accuracy upon a given threshold.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ground_truth (numpy.ndarray): The ground-truth.</span>
+<span class="sd">        predicted_scores (numpy.ndarray): The predicted scores.</span>
+<span class="sd">        threshold (float): Threshold value.</span>
+<span class="sd">        label_neg (int): Label for the negative class.</span>
+<span class="sd">        label_pos (int):  Label for the positive class.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Return the balanced accuracy considering a given threshold. The balanced accuracy can varies between 0.0 and 1.0, which</span>
+<span class="sd">        means the worst and the perfect classification results, respectively.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">predicted_labels_threshold</span><span class="p">(</span><span class="n">predicted_scores</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">label_neg</span><span class="o">=</span><span class="n">label_neg</span><span class="p">,</span> <span class="n">label_pos</span><span class="o">=</span><span class="n">label_pos</span><span class="p">)</span>
+
+    <span class="n">categories</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">ground_truth</span><span class="p">)</span>
+
+    <span class="n">bal_acc</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">:</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ground_truth</span> <span class="o">==</span> <span class="n">cat</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">y_true_cat</span><span class="p">,</span> <span class="n">y_pred_cat</span> <span class="o">=</span> <span class="n">ground_truth</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">y_pred</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">tp</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_pred_cat</span><span class="p">))</span> <span class="k">if</span> <span class="n">y_true_cat</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="n">y_pred_cat</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span>
+        <span class="n">tp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">tp</span><span class="p">)</span>
+        <span class="n">bal_acc</span> <span class="o">+=</span> <span class="p">[</span><span class="n">tp</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_pred_cat</span><span class="p">))]</span>
+
+    <span class="n">bal_acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bal_acc</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">bal_acc</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="eer_threshold"><a class="viewcode-back" href="../../../../antispoofing.mcnns.measure.html#antispoofing.mcnns.measure.measure.eer_threshold">[docs]</a><span class="k">def</span> <span class="nf">eer_threshold</span><span class="p">(</span><span class="n">neg_scores</span><span class="p">,</span> <span class="n">pos_scores</span><span class="p">,</span> <span class="n">n_points</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Compute the EER threshold, that is, the threshold in that the FAR = FRR</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        neg_scores (numpy.ndarray): The scores for the negative class.</span>
+<span class="sd">        pos_scores (numpy.ndarray): The scores for the positive class.</span>
+<span class="sd">        n_points (int): Number of points considered to build the curve. Default is 1000.</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        We suppose that negative scores is on the left side of the positive scores</span>
+<span class="sd">        Deprecated condition: We suppose that negative scores is lower than 0 and positive scores os upper than 0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">delta_min</span> <span class="o">=</span> <span class="mf">1e5</span>
+
+    <span class="k">if</span> <span class="n">neg_scores</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.</span>
+
+    <span class="k">if</span> <span class="n">pos_scores</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.</span>
+
+    <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">neg_scores</span><span class="p">)</span>
+    <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">pos_scores</span><span class="p">)</span>
+
+    <span class="n">steps</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">upper_bound</span> <span class="o">-</span> <span class="n">lower_bound</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">n_points</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">thr</span> <span class="o">=</span> <span class="n">lower_bound</span>
+
+    <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_points</span><span class="p">):</span>
+
+        <span class="n">far</span><span class="p">,</span> <span class="n">frr</span> <span class="o">=</span> <span class="n">farfrr</span><span class="p">(</span><span class="n">neg_scores</span><span class="p">,</span> <span class="n">pos_scores</span><span class="p">,</span> <span class="n">thr</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">far</span> <span class="o">-</span> <span class="n">frr</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">delta_min</span><span class="p">:</span>
+            <span class="n">delta_min</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">far</span> <span class="o">-</span> <span class="n">frr</span><span class="p">)</span>
+            <span class="n">threshold</span> <span class="o">=</span> <span class="n">thr</span>
+
+        <span class="n">thr</span> <span class="o">+=</span> <span class="n">steps</span>
+
+    <span class="k">return</span> <span class="n">threshold</span></div>
+
+
+<div class="viewcode-block" id="farfrr_curve"><a class="viewcode-back" href="../../../../antispoofing.mcnns.measure.html#antispoofing.mcnns.measure.measure.farfrr_curve">[docs]</a><span class="k">def</span> <span class="nf">farfrr_curve</span><span class="p">(</span><span class="n">negatives</span><span class="p">,</span> <span class="n">positives</span><span class="p">,</span> <span class="n">n_points</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Compute the far and frr curve</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        negatives (numpy.ndarray): The scores for the negative class.</span>
+<span class="sd">        positives (numpy.ndarray): The scores for the positive class.</span>
+<span class="sd">        n_points (int): Number of points considered to build the curve. Default is 1000.</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        We suppose that negative scores is on the left side of the positive scores</span>
+<span class="sd">        Deprecated condition: We suppose that negative scores is lower than 0 and positive scores os upper than 0</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">negatives</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.</span>
+
+    <span class="k">if</span> <span class="n">positives</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.</span>
+
+    <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">negatives</span><span class="p">)</span>
+    <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">positives</span><span class="p">)</span>
+
+    <span class="n">steps</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">upper_bound</span> <span class="o">-</span> <span class="n">lower_bound</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">n_points</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">thr</span> <span class="o">=</span> <span class="n">lower_bound</span>
+
+    <span class="n">fars</span><span class="p">,</span> <span class="n">frrs</span><span class="p">,</span> <span class="n">thresholds</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_points</span><span class="p">):</span>
+        <span class="n">far</span><span class="p">,</span> <span class="n">frr</span> <span class="o">=</span> <span class="n">farfrr</span><span class="p">(</span><span class="n">negatives</span><span class="p">,</span> <span class="n">positives</span><span class="p">,</span> <span class="n">thr</span><span class="p">)</span>
+        <span class="n">fars</span> <span class="o">+=</span> <span class="p">[</span><span class="n">far</span><span class="p">]</span>
+        <span class="n">frrs</span> <span class="o">+=</span> <span class="p">[</span><span class="n">frr</span><span class="p">]</span>
+        <span class="n">thresholds</span> <span class="o">+=</span> <span class="p">[</span><span class="n">thr</span><span class="p">]</span>
+
+        <span class="n">thr</span> <span class="o">+=</span> <span class="n">steps</span>
+
+    <span class="n">fars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">fars</span><span class="p">)</span>
+    <span class="n">frrs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">frrs</span><span class="p">)</span>
+    <span class="n">thresholds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">thresholds</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fars</span><span class="p">,</span> <span class="n">frrs</span><span class="p">,</span> <span class="n">thresholds</span></div>
+
+
+<div class="viewcode-block" id="far_threshold"><a class="viewcode-back" href="../../../../antispoofing.mcnns.measure.html#antispoofing.mcnns.measure.measure.far_threshold">[docs]</a><span class="k">def</span> <span class="nf">far_threshold</span><span class="p">(</span><span class="n">negatives</span><span class="p">,</span> <span class="n">positives</span><span class="p">,</span> <span class="n">far_at</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Compute the threshold in that FAR=far_value</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        negatives (numpy.ndarray): The scores for the negative class.</span>
+<span class="sd">        positives (numpy.ndarray): The scores for the positive class.</span>
+<span class="sd">        far_at (float): A value for the false acceptance rate.</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">n_points</span> <span class="o">=</span> <span class="mi">1000</span>
+    <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="k">if</span> <span class="n">negatives</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.</span>
+
+    <span class="k">if</span> <span class="n">positives</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.</span>
+
+    <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">negatives</span><span class="p">)</span>
+    <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">positives</span><span class="p">)</span>
+
+    <span class="n">steps</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">upper_bound</span> <span class="o">-</span> <span class="n">lower_bound</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">n_points</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">thr</span> <span class="o">=</span> <span class="n">lower_bound</span>
+
+    <span class="n">found</span><span class="p">,</span> <span class="n">pt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">pt</span> <span class="o">&lt;</span> <span class="n">n_points</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+        <span class="n">far</span><span class="p">,</span> <span class="n">frr</span> <span class="o">=</span> <span class="n">farfrr</span><span class="p">(</span><span class="n">negatives</span><span class="p">,</span> <span class="n">positives</span><span class="p">,</span> <span class="n">thr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">far</span> <span class="o">&lt;=</span> <span class="n">far_at</span><span class="p">:</span>
+            <span class="n">threshold</span> <span class="o">=</span> <span class="n">thr</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">thr</span> <span class="o">+=</span> <span class="n">steps</span>
+
+    <span class="k">return</span> <span class="n">threshold</span></div>
+
+
+<div class="viewcode-block" id="farfrr"><a class="viewcode-back" href="../../../../antispoofing.mcnns.measure.html#antispoofing.mcnns.measure.measure.farfrr">[docs]</a><span class="k">def</span> <span class="nf">farfrr</span><span class="p">(</span><span class="n">negatives</span><span class="p">,</span> <span class="n">positives</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Compute the False Acceptance and the False Rejection Rates considering a given threshold value.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        negatives (numpy.ndarray): The scores for the negative class.</span>
+<span class="sd">        positives (numpy.ndarray): The scores for the positive class.</span>
+<span class="sd">        threshold (float): A threshold value.</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">negatives</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">far</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">negatives</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">far</span> <span class="o">=</span> <span class="mf">1.</span>
+
+    <span class="k">if</span> <span class="n">positives</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">frr</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">positives</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">frr</span> <span class="o">=</span> <span class="mf">1.</span>
+
+    <span class="k">return</span> <span class="n">far</span><span class="p">,</span> <span class="n">frr</span></div>
+
+
+<div class="viewcode-block" id="calc_hter"><a class="viewcode-back" href="../../../../antispoofing.mcnns.measure.html#antispoofing.mcnns.measure.measure.calc_hter">[docs]</a><span class="k">def</span> <span class="nf">calc_hter</span><span class="p">(</span><span class="n">neg_devel</span><span class="p">,</span> <span class="n">pos_devel</span><span class="p">,</span> <span class="n">neg_test</span><span class="p">,</span> <span class="n">pos_test</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Compute the Half Total Error Rate.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        neg_devel (numpy.ndarray):</span>
+<span class="sd">        pos_devel (numpy.ndarray):</span>
+<span class="sd">        neg_test (numpy.ndarray):</span>
+<span class="sd">        pos_test (numpy.ndarray):</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># -- calculate threshold upon eer point</span>
+    <span class="n">threshold</span> <span class="o">=</span> <span class="n">eer_threshold</span><span class="p">(</span><span class="n">neg_devel</span><span class="p">,</span> <span class="n">pos_devel</span><span class="p">)</span>
+
+    <span class="c1"># -- calculate far and frr</span>
+    <span class="n">far</span><span class="p">,</span> <span class="n">frr</span> <span class="o">=</span> <span class="n">farfrr</span><span class="p">(</span><span class="n">neg_test</span><span class="p">,</span> <span class="n">pos_test</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+
+    <span class="n">far</span> <span class="o">*=</span> <span class="mf">100.</span>
+    <span class="n">frr</span> <span class="o">*=</span> <span class="mf">100.</span>
+
+    <span class="n">hter</span> <span class="o">=</span> <span class="p">((</span><span class="n">far</span> <span class="o">+</span> <span class="n">frr</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">far</span><span class="p">,</span> <span class="n">frr</span><span class="p">,</span> <span class="n">hter</span></div>
+
+
+<div class="viewcode-block" id="ppndf_over_array"><a class="viewcode-back" href="../../../../antispoofing.mcnns.measure.html#antispoofing.mcnns.measure.measure.ppndf_over_array">[docs]</a><span class="k">def</span> <span class="nf">ppndf_over_array</span><span class="p">(</span><span class="n">cum_prob</span><span class="p">):</span>
+    <span class="n">split</span> <span class="o">=</span> <span class="mf">0.42</span>
+    <span class="n">a_0</span> <span class="o">=</span> <span class="mf">2.5066282388</span>
+    <span class="n">a_1</span> <span class="o">=</span> <span class="o">-</span><span class="mf">18.6150006252</span>
+    <span class="n">a_2</span> <span class="o">=</span> <span class="mf">41.3911977353</span>
+    <span class="n">a_3</span> <span class="o">=</span> <span class="o">-</span><span class="mf">25.4410604963</span>
+    <span class="n">b_1</span> <span class="o">=</span> <span class="o">-</span><span class="mf">8.4735109309</span>
+    <span class="n">b_2</span> <span class="o">=</span> <span class="mf">23.0833674374</span>
+    <span class="n">b_3</span> <span class="o">=</span> <span class="o">-</span><span class="mf">21.0622410182</span>
+    <span class="n">b_4</span> <span class="o">=</span> <span class="mf">3.1308290983</span>
+    <span class="n">c_0</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.7871893113</span>
+    <span class="n">c_1</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.2979647913</span>
+    <span class="n">c_2</span> <span class="o">=</span> <span class="mf">4.8501412713</span>
+    <span class="n">c_3</span> <span class="o">=</span> <span class="mf">2.3212127685</span>
+    <span class="n">d_1</span> <span class="o">=</span> <span class="mf">3.5438892476</span>
+    <span class="n">d_2</span> <span class="o">=</span> <span class="mf">1.6370678189</span>
+    <span class="n">eps</span> <span class="o">=</span> <span class="mf">2.2204e-16</span>
+
+    <span class="n">n_rows</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">=</span> <span class="n">cum_prob</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="n">norm_dev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_rows</span><span class="p">,</span> <span class="n">n_cols</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">irow</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_rows</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">icol</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cols</span><span class="p">):</span>
+
+            <span class="n">prob</span> <span class="o">=</span> <span class="n">cum_prob</span><span class="p">[</span><span class="n">irow</span><span class="p">,</span> <span class="n">icol</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">prob</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+                <span class="n">prob</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">eps</span>
+            <span class="k">elif</span> <span class="n">prob</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">prob</span> <span class="o">=</span> <span class="n">eps</span>
+
+            <span class="n">q</span> <span class="o">=</span> <span class="n">prob</span> <span class="o">-</span> <span class="mf">0.5</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">prob</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">split</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">q</span> <span class="o">*</span> <span class="n">q</span>
+                <span class="n">pf</span> <span class="o">=</span> <span class="n">q</span> <span class="o">*</span> <span class="p">(((</span><span class="n">a_3</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">a_2</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">a_1</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">a_0</span><span class="p">)</span>
+                <span class="n">pf</span> <span class="o">/=</span> <span class="p">(((</span><span class="n">b_4</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">b_3</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">b_2</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">b_1</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="mf">1.0</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">q</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                    <span class="n">r</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">-</span><span class="n">prob</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">r</span> <span class="o">=</span> <span class="n">prob</span>
+
+                <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="o">-</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
+                <span class="n">pf</span> <span class="o">=</span> <span class="p">(((</span><span class="n">c_3</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">c_2</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">c_1</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">c_0</span><span class="p">)</span>
+                <span class="n">pf</span> <span class="o">/=</span> <span class="p">((</span><span class="n">d_2</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">d_1</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">q</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">pf</span> <span class="o">*=</span> <span class="o">-</span><span class="mf">1.0</span>
+
+            <span class="n">norm_dev</span><span class="p">[</span><span class="n">irow</span><span class="p">,</span> <span class="n">icol</span><span class="p">]</span> <span class="o">=</span> <span class="n">pf</span>
+
+    <span class="k">return</span> <span class="n">norm_dev</span></div>
+
+
+<div class="viewcode-block" id="ppndf"><a class="viewcode-back" href="../../../../antispoofing.mcnns.measure.html#antispoofing.mcnns.measure.measure.ppndf">[docs]</a><span class="k">def</span> <span class="nf">ppndf</span><span class="p">(</span><span class="n">prob</span><span class="p">):</span>
+    <span class="n">split</span> <span class="o">=</span> <span class="mf">0.42</span>
+    <span class="n">a_0</span> <span class="o">=</span> <span class="mf">2.5066282388</span>
+    <span class="n">a_1</span> <span class="o">=</span> <span class="o">-</span><span class="mf">18.6150006252</span>
+    <span class="n">a_2</span> <span class="o">=</span> <span class="mf">41.3911977353</span>
+    <span class="n">a_3</span> <span class="o">=</span> <span class="o">-</span><span class="mf">25.4410604963</span>
+    <span class="n">b_1</span> <span class="o">=</span> <span class="o">-</span><span class="mf">8.4735109309</span>
+    <span class="n">b_2</span> <span class="o">=</span> <span class="mf">23.0833674374</span>
+    <span class="n">b_3</span> <span class="o">=</span> <span class="o">-</span><span class="mf">21.0622410182</span>
+    <span class="n">b_4</span> <span class="o">=</span> <span class="mf">3.1308290983</span>
+    <span class="n">c_0</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.7871893113</span>
+    <span class="n">c_1</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.2979647913</span>
+    <span class="n">c_2</span> <span class="o">=</span> <span class="mf">4.8501412713</span>
+    <span class="n">c_3</span> <span class="o">=</span> <span class="mf">2.3212127685</span>
+    <span class="n">d_1</span> <span class="o">=</span> <span class="mf">3.5438892476</span>
+    <span class="n">d_2</span> <span class="o">=</span> <span class="mf">1.6370678189</span>
+    <span class="n">eps</span> <span class="o">=</span> <span class="mf">2.2204e-16</span>
+
+    <span class="k">if</span> <span class="n">prob</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+        <span class="n">prob</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">eps</span>
+    <span class="k">elif</span> <span class="n">prob</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">prob</span> <span class="o">=</span> <span class="n">eps</span>
+
+    <span class="n">q</span> <span class="o">=</span> <span class="n">prob</span> <span class="o">-</span> <span class="mf">0.5</span>
+    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">prob</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">split</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">q</span> <span class="o">*</span> <span class="n">q</span>
+        <span class="n">pf</span> <span class="o">=</span> <span class="n">q</span> <span class="o">*</span> <span class="p">(((</span><span class="n">a_3</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">a_2</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">a_1</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">a_0</span><span class="p">)</span>
+        <span class="n">pf</span> <span class="o">/=</span> <span class="p">(((</span><span class="n">b_4</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">b_3</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">b_2</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">b_1</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="mf">1.0</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">q</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">-</span><span class="n">prob</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">prob</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="o">-</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
+        <span class="n">pf</span> <span class="o">=</span> <span class="p">(((</span><span class="n">c_3</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">c_2</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">c_1</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">c_0</span><span class="p">)</span>
+        <span class="n">pf</span> <span class="o">/=</span> <span class="p">((</span><span class="n">d_2</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">d_1</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">q</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">pf</span> <span class="o">*=</span> <span class="o">-</span><span class="mf">1.0</span>
+
+    <span class="k">return</span> <span class="n">pf</span></div>
+
+
+<div class="viewcode-block" id="compute_det"><a class="viewcode-back" href="../../../../antispoofing.mcnns.measure.html#antispoofing.mcnns.measure.measure.compute_det">[docs]</a><span class="k">def</span> <span class="nf">compute_det</span><span class="p">(</span><span class="n">negatives</span><span class="p">,</span> <span class="n">positives</span><span class="p">,</span> <span class="n">n_points</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        negatives (numpy.ndarray): The scores for the negative class.</span>
+<span class="sd">        positives (numpy.ndarray): The scores for the positive class.</span>
+<span class="sd">        n_points (int): Number of points considered to build the curve.</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        We suppose that negative scores is on the left side of the positive scores</span>
+<span class="sd">        Deprecated condition: We suppose that negative scores is lower than 0 and positive scores os upper than 0</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">negatives</span><span class="p">)</span>
+    <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">negatives</span><span class="p">)</span>
+
+    <span class="n">steps</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">upper_bound</span> <span class="o">-</span> <span class="n">lower_bound</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">n_points</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">threshold</span> <span class="o">=</span> <span class="n">lower_bound</span>
+    <span class="n">curve</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_points</span><span class="p">):</span>
+
+        <span class="n">far</span><span class="p">,</span> <span class="n">frr</span> <span class="o">=</span> <span class="n">farfrr</span><span class="p">(</span><span class="n">negatives</span><span class="p">,</span> <span class="n">positives</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+
+        <span class="n">curve</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">far</span><span class="p">,</span> <span class="n">frr</span><span class="p">])</span>
+        <span class="n">threshold</span> <span class="o">+=</span> <span class="n">steps</span>
+
+    <span class="n">curve</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">curve</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ppndf_over_array</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">T</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="det"><a class="viewcode-back" href="../../../../antispoofing.mcnns.measure.html#antispoofing.mcnns.measure.measure.det">[docs]</a><span class="k">def</span> <span class="nf">det</span><span class="p">(</span><span class="n">negatives</span><span class="p">,</span> <span class="n">positives</span><span class="p">,</span> <span class="n">n_points</span><span class="p">,</span> <span class="n">axis_font_size</span><span class="o">=</span><span class="s1">&#39;x-small&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        negatives (numpy.ndarray): The scores for the negative class.</span>
+<span class="sd">        positives (numpy.ndarray): The scores for the positive class.</span>
+<span class="sd">        n_points (int): Number of points considered to build the curve.</span>
+<span class="sd">        axis_font_size (str): A string specifying the axis font size.</span>
+<span class="sd">        **kwargs: Optional arguments for the plot function of the matplotlib.pyplot package.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># these are some constants required in this method</span>
+    <span class="n">desired_ticks</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;0.00001&#39;</span><span class="p">,</span> <span class="s1">&#39;0.00002&#39;</span><span class="p">,</span> <span class="s1">&#39;0.00005&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;0.0001&#39;</span><span class="p">,</span> <span class="s1">&#39;0.0002&#39;</span><span class="p">,</span> <span class="s1">&#39;0.0005&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;0.001&#39;</span><span class="p">,</span> <span class="s1">&#39;0.002&#39;</span><span class="p">,</span> <span class="s1">&#39;0.005&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;0.01&#39;</span><span class="p">,</span> <span class="s1">&#39;0.02&#39;</span><span class="p">,</span> <span class="s1">&#39;0.05&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;0.1&#39;</span><span class="p">,</span> <span class="s1">&#39;0.2&#39;</span><span class="p">,</span> <span class="s1">&#39;0.4&#39;</span><span class="p">,</span> <span class="s1">&#39;0.6&#39;</span><span class="p">,</span> <span class="s1">&#39;0.8&#39;</span><span class="p">,</span> <span class="s1">&#39;0.9&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;0.95&#39;</span><span class="p">,</span> <span class="s1">&#39;0.98&#39;</span><span class="p">,</span> <span class="s1">&#39;0.99&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;0.995&#39;</span><span class="p">,</span> <span class="s1">&#39;0.998&#39;</span><span class="p">,</span> <span class="s1">&#39;0.999&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;0.9995&#39;</span><span class="p">,</span> <span class="s1">&#39;0.9998&#39;</span><span class="p">,</span> <span class="s1">&#39;0.9999&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;0.99995&#39;</span><span class="p">,</span> <span class="s1">&#39;0.99998&#39;</span><span class="p">,</span> <span class="s1">&#39;0.99999&#39;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">desired_labels</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;0.001&#39;</span><span class="p">,</span> <span class="s1">&#39;0.002&#39;</span><span class="p">,</span> <span class="s1">&#39;0.005&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;0.01&#39;</span><span class="p">,</span> <span class="s1">&#39;0.02&#39;</span><span class="p">,</span> <span class="s1">&#39;0.05&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;0.1&#39;</span><span class="p">,</span> <span class="s1">&#39;0.2&#39;</span><span class="p">,</span> <span class="s1">&#39;0.5&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;10&#39;</span><span class="p">,</span> <span class="s1">&#39;20&#39;</span><span class="p">,</span> <span class="s1">&#39;40&#39;</span><span class="p">,</span> <span class="s1">&#39;60&#39;</span><span class="p">,</span> <span class="s1">&#39;80&#39;</span><span class="p">,</span> <span class="s1">&#39;90&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;95&#39;</span><span class="p">,</span> <span class="s1">&#39;98&#39;</span><span class="p">,</span> <span class="s1">&#39;99&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;99.5&#39;</span><span class="p">,</span> <span class="s1">&#39;99.8&#39;</span><span class="p">,</span> <span class="s1">&#39;99.9&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;99.95&#39;</span><span class="p">,</span> <span class="s1">&#39;99.98&#39;</span><span class="p">,</span> <span class="s1">&#39;99.99&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;99.995&#39;</span><span class="p">,</span> <span class="s1">&#39;99.998&#39;</span><span class="p">,</span> <span class="s1">&#39;99.999&#39;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">curve</span> <span class="o">=</span> <span class="n">compute_det</span><span class="p">(</span><span class="n">negatives</span><span class="p">,</span> <span class="n">positives</span><span class="p">,</span> <span class="n">n_points</span><span class="p">)</span>
+
+    <span class="n">output_plot</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">curve</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">curve</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="c1"># -- now the trick: we must plot the tick marks by hand using the PPNDF method</span>
+    <span class="n">p_ticks</span> <span class="o">=</span> <span class="p">[</span><span class="n">ppndf</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">desired_ticks</span><span class="p">]</span>
+
+    <span class="c1"># -- and finally we set our own tick marks</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">p_ticks</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">desired_labels</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">axis_font_size</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">p_ticks</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">desired_labels</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">axis_font_size</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output_plot</span></div>
+
+
+<div class="viewcode-block" id="det_axis"><a class="viewcode-back" href="../../../../antispoofing.mcnns.measure.html#antispoofing.mcnns.measure.measure.det_axis">[docs]</a><span class="k">def</span> <span class="nf">det_axis</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        v:</span>
+<span class="sd">        **kwargs:</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">tv</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="n">tv</span> <span class="o">=</span> <span class="p">[</span><span class="n">ppndf</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">tv</span><span class="p">]</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="n">tv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ret</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">MCNNs 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, ND Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

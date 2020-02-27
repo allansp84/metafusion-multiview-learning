@@ -1,0 +1,249 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>antispoofing.mcnns.datasets.forannotation &#8212; MCNNs 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">MCNNs 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for antispoofing.mcnns.datasets.forannotation</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="k">import</span> <span class="n">glob</span>
+<span class="kn">from</span> <span class="nn">antispoofing.mcnns.datasets.dataset</span> <span class="k">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">antispoofing.mcnns.utils</span> <span class="k">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="ForAnnotation"><a class="viewcode-back" href="../../../../antispoofing.mcnns.datasets.html#antispoofing.mcnns.datasets.forannotation.ForAnnotation">[docs]</a><span class="k">class</span> <span class="nc">ForAnnotation</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_path</span><span class="p">,</span> <span class="n">ground_truth_path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">permutation_path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">iris_location</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                 <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;./working&#39;</span><span class="p">,</span> <span class="n">file_types</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;.png&#39;</span><span class="p">,</span> <span class="s1">&#39;.bmp&#39;</span><span class="p">,</span> <span class="s1">&#39;.jpg&#39;</span><span class="p">,</span> <span class="s1">&#39;.tiff&#39;</span><span class="p">),</span>
+                 <span class="n">operation</span><span class="o">=</span><span class="s1">&#39;crop&#39;</span><span class="p">,</span> <span class="n">max_axis</span><span class="o">=</span><span class="mi">320</span><span class="p">,</span>
+                 <span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">ForAnnotation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">iris_location</span><span class="p">,</span> <span class="n">file_types</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span> <span class="n">max_axis</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="ForAnnotation.build_meta"><a class="viewcode-back" href="../../../../antispoofing.mcnns.datasets.html#antispoofing.mcnns.datasets.forannotation.ForAnnotation.build_meta">[docs]</a>    <span class="k">def</span> <span class="nf">build_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inpath</span><span class="p">,</span> <span class="n">filetypes</span><span class="p">):</span>
+
+        <span class="n">img_idx</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">all_fnames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">all_labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">all_idxs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">train_idxs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">test_idxs</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">hash_img_id</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">folders</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">list_dirs</span><span class="p">(</span><span class="n">inpath</span><span class="p">,</span> <span class="n">filetypes</span><span class="p">)]</span>
+        <span class="n">folders</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">folders</span><span class="p">)))</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">folder</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">folders</span><span class="p">):</span>
+
+            <span class="n">fnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inpath</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span> <span class="o">+</span> <span class="n">filetype</span><span class="p">))</span> <span class="k">for</span> <span class="n">filetype</span> <span class="ow">in</span> <span class="n">filetypes</span><span class="p">]</span>
+            <span class="n">fnames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">fnames</span><span class="p">)))</span>
+
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">fname</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fnames</span><span class="p">):</span>
+
+                <span class="n">rel_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">inpath</span><span class="p">)</span>
+                <span class="n">img_id</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">rel_path</span><span class="p">))</span>
+                <span class="n">img_id</span> <span class="o">=</span> <span class="n">img_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">img_id</span> <span class="ow">in</span> <span class="n">hash_img_id</span><span class="p">):</span>
+                    <span class="n">hash_img_id</span><span class="p">[</span><span class="n">img_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">img_idx</span>
+                    <span class="n">test_idxs</span> <span class="o">+=</span> <span class="p">[</span><span class="n">img_idx</span><span class="p">]</span>
+
+                    <span class="n">all_labels</span> <span class="o">+=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">all_fnames</span> <span class="o">+=</span> <span class="p">[</span><span class="n">fname</span><span class="p">]</span>
+                    <span class="n">all_idxs</span> <span class="o">+=</span> <span class="p">[</span><span class="n">img_idx</span><span class="p">]</span>
+
+                    <span class="n">img_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+        <span class="n">all_fnames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_fnames</span><span class="p">)</span>
+        <span class="n">all_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_labels</span><span class="p">)</span>
+        <span class="n">all_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_idxs</span><span class="p">)</span>
+        <span class="n">train_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">train_idxs</span><span class="p">)</span>
+        <span class="n">test_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">test_idxs</span><span class="p">)</span>
+
+        <span class="n">r_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;all_fnames&#39;</span><span class="p">:</span> <span class="n">all_fnames</span><span class="p">,</span>
+                  <span class="s1">&#39;all_labels&#39;</span><span class="p">:</span> <span class="n">all_labels</span><span class="p">,</span>
+                  <span class="s1">&#39;all_idxs&#39;</span><span class="p">:</span> <span class="n">all_idxs</span><span class="p">,</span>
+
+                  <span class="s1">&#39;train_idxs&#39;</span><span class="p">:</span> <span class="n">train_idxs</span><span class="p">,</span>
+                  <span class="s1">&#39;test_idxs&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="n">test_idxs</span><span class="p">,</span>
+                                <span class="p">},</span>
+
+                  <span class="s1">&#39;hash_img_id&#39;</span><span class="p">:</span> <span class="n">hash_img_id</span><span class="p">,</span>
+                  <span class="p">}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">r_dict</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">r_dict</span></div>
+
+    <span class="c1"># def _additional_test_set(self, key, test_set):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#</span>
+    <span class="c1">#     Args:</span>
+    <span class="c1">#         key:</span>
+    <span class="c1">#         test_set:</span>
+    <span class="c1">#</span>
+    <span class="c1">#     Returns:</span>
+    <span class="c1">#</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     self.sets[&#39;test_set&#39;][key] = test_set</span>
+
+<div class="viewcode-block" id="ForAnnotation.protocol_eval"><a class="viewcode-back" href="../../../../antispoofing.mcnns.datasets.html#antispoofing.mcnns.datasets.forannotation.ForAnnotation.protocol_eval">[docs]</a>    <span class="k">def</span> <span class="nf">protocol_eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_fold</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fold:</span>
+<span class="sd">            n_fold:</span>
+<span class="sd">            test_size:</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># -- loading the training data and its labels</span>
+        <span class="n">all_fnames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_info</span><span class="p">[</span><span class="s1">&#39;all_fnames&#39;</span><span class="p">]</span>
+        <span class="n">all_labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_info</span><span class="p">[</span><span class="s1">&#39;all_labels&#39;</span><span class="p">]</span>
+        <span class="n">train_idxs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_info</span><span class="p">[</span><span class="s1">&#39;train_idxs&#39;</span><span class="p">]</span>
+        <span class="n">test_idxs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta_info</span><span class="p">[</span><span class="s1">&#39;test_idxs&#39;</span><span class="p">]</span>
+
+        <span class="n">all_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_imgs</span><span class="p">(</span><span class="n">all_fnames</span><span class="p">)</span>
+
+        <span class="c1"># # -- create a mosaic for the positive and negative images.</span>
+        <span class="c1"># all_pos_idxs = np.where(all_labels == 1)[0]</span>
+        <span class="c1"># all_neg_idxs = np.where(all_labels == 0)[0]</span>
+        <span class="c1"># create_mosaic(all_data[all_pos_idxs][:20], n_col=10, output_fname=os.path.join(self.output_path, &#39;mosaic-pos-class-1.jpeg&#39;))</span>
+        <span class="c1"># create_mosaic(all_data[all_neg_idxs][:20], n_col=10, output_fname=os.path.join(self.output_path, &#39;mosaic-neg-class-0.jpeg&#39;))</span>
+
+        <span class="n">train_set</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">test_set</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">test_id</span> <span class="ow">in</span> <span class="n">test_idxs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">test_idxs</span><span class="p">[</span><span class="n">test_id</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+                <span class="n">test_set</span><span class="p">[</span><span class="n">test_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">all_data</span><span class="p">[</span><span class="n">test_idxs</span><span class="p">[</span><span class="n">test_id</span><span class="p">]],</span>
+                                     <span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="n">all_labels</span><span class="p">[</span><span class="n">test_idxs</span><span class="p">[</span><span class="n">test_id</span><span class="p">]],</span>
+                                     <span class="s1">&#39;idxs&#39;</span><span class="p">:</span> <span class="n">test_idxs</span><span class="p">[</span><span class="n">test_id</span><span class="p">],</span>
+                                     <span class="p">}</span>
+
+        <span class="c1"># self.sets = {&#39;train_set&#39;: train_set, &#39;test_set&#39;: test_set}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;train_set&#39;</span><span class="p">:</span> <span class="n">train_set</span><span class="p">,</span> <span class="s1">&#39;test_set&#39;</span><span class="p">:</span> <span class="n">test_set</span><span class="p">}</span></div></div>
+
+    <span class="c1"># def protocol_sets(self, fold=0, n_fold=5, test_size=0.5, dataset_b=None):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#</span>
+    <span class="c1">#     Args:</span>
+    <span class="c1">#         fold:</span>
+    <span class="c1">#         n_fold:</span>
+    <span class="c1">#         test_size:</span>
+    <span class="c1">#         protocol:</span>
+    <span class="c1">#         dataset_b:</span>
+    <span class="c1">#</span>
+    <span class="c1">#     Returns:</span>
+    <span class="c1">#</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#</span>
+    <span class="c1">#     if dataset_b is None:</span>
+    <span class="c1">#         # -- get the official training and testing sets of the first dataset</span>
+    <span class="c1">#         self.protocol_eval(fold=fold, n_fold=n_fold, test_size=test_size)</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#</span>
+    <span class="c1">#         # -- prepare the official training and testing sets of the first dataset</span>
+    <span class="c1">#         self.protocol_eval(fold=fold, n_fold=n_fold, test_size=test_size)</span>
+    <span class="c1">#</span>
+    <span class="c1">#         # -- prepare the official training and testing sets of the second dataset</span>
+    <span class="c1">#         dataset_b = dataset_b.protocol_eval(fold=fold, n_fold=n_fold, test_size=test_size)</span>
+    <span class="c1">#</span>
+    <span class="c1">#         # -- add the testing set of the second dataset in the first dataset</span>
+    <span class="c1">#         self._additional_test_set(&#39;{0}_test&#39;.format(str(dataset_b.__class__.__name__).lower()),</span>
+    <span class="c1">#                                   test_set=dataset_b[&#39;test_set&#39;],</span>
+    <span class="c1">#                                   )</span>
+    <span class="c1">#</span>
+    <span class="c1">#     return self.sets</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">MCNNs 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, ND Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

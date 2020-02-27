@@ -1,0 +1,248 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>antispoofing.mcnns.scripts.mcnnsantispoofing &#8212; MCNNs 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">MCNNs 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for antispoofing.mcnns.scripts.mcnnsantispoofing</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+
+<span class="kn">from</span> <span class="nn">antispoofing.mcnns.utils</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">antispoofing.mcnns.datasets</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">antispoofing.mcnns.controller</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">antispoofing.mcnns.classification</span> <span class="k">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="CommandLineParser"><a class="viewcode-back" href="../../../../antispoofing.mcnns.scripts.html#antispoofing.mcnns.scripts.mcnnsantispoofing.CommandLineParser">[docs]</a><span class="k">class</span> <span class="nc">CommandLineParser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># -- define the arguments available in the command line execution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawTextHelpFormatter</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CommandLineParser.parsing"><a class="viewcode-back" href="../../../../antispoofing.mcnns.scripts.html#antispoofing.mcnns.scripts.mcnnsantispoofing.CommandLineParser.parsing">[docs]</a>    <span class="k">def</span> <span class="nf">parsing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dataset_options</span> <span class="o">=</span> <span class="s1">&#39;Available dataset interfaces: &#39;</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">registered_datasets</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">dataset_options</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">, &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">registered_datasets</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+
+        <span class="n">ml_algo_options</span> <span class="o">=</span> <span class="s1">&#39;Available Algorithm for Classification: &#39;</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">ml_algo</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">ml_algo_options</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">, &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">ml_algo</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+
+        <span class="n">losses_functions_options</span> <span class="o">=</span> <span class="s1">&#39;Available Algorithm for Losses: &#39;</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">losses_functions</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">losses_functions_options</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">, &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">losses_functions</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+
+        <span class="n">optimizer_methods_options</span> <span class="o">=</span> <span class="s1">&#39;Available Optimizers: &#39;</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">optimizer_methods</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">optimizer_methods_options</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">, &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">optimizer_methods</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+
+        <span class="c1"># -- arguments related to the dataset and to the output</span>
+        <span class="n">group_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s1">&#39;Arguments&#39;</span><span class="p">)</span>
+
+        <span class="n">group_a</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--protocol&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;intra-test&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;intra-dataset&#39;</span><span class="p">,</span> <span class="s1">&#39;inter-dataset&#39;</span><span class="p">],</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;(default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_a</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--dataset&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">registered_datasets</span><span class="p">)),</span>
+                             <span class="n">help</span><span class="o">=</span><span class="n">dataset_options</span> <span class="o">+</span> <span class="s1">&#39;(default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_a</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--dataset_b&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">registered_datasets</span><span class="p">)),</span>
+                             <span class="n">help</span><span class="o">=</span><span class="n">dataset_options</span> <span class="o">+</span> <span class="s1">&#39;(default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_a</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--dataset_path&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Path to the dataset.&#39;</span><span class="p">)</span>
+
+        <span class="n">group_a</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--dataset_path_b&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Path to the dataset.&#39;</span><span class="p">)</span>
+
+        <span class="n">group_a</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--output_path&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;working&#39;</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Path where the results will be saved (default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_a</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--ground_truth_path&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;A .csv file containing the ground-truth (default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_a</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--ground_truth_path_b&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;A .csv file containing the ground-truth for the second dataset (default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_a</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--permutation_path&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;A .csv file containing the data divided in two sets, training and testing sets (default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_a</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--iris_location&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;extra/irislocation_osiris.csv&#39;</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;A .csv file containing the irises locations (default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_a</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--iris_location_b&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;extra/irislocation_osiris.csv&#39;</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;A .csv file containing the irises locations for the dataset b (default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="c1"># -- arguments related to the Feature extraction module</span>
+        <span class="n">group_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s1">&#39;Available Parameters for Feature Extraction&#39;</span><span class="p">)</span>
+
+        <span class="n">group_b</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--feature_extraction&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Execute the feature extraction process (default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_b</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--descriptor&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;RawImage&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                             <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;RawImage&#39;</span><span class="p">,</span> <span class="s1">&#39;BSIF&#39;</span><span class="p">],</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;(default=</span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+        <span class="c1"># -- arguments related to the Classification module</span>
+        <span class="n">group_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s1">&#39;Available Parameters for Classification&#39;</span><span class="p">)</span>
+
+        <span class="n">group_c</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--classification&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Execute the classification process (default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_c</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--ml_algo&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ml_algo</span><span class="p">)),</span>
+                             <span class="n">help</span><span class="o">=</span><span class="n">ml_algo_options</span> <span class="o">+</span> <span class="s1">&#39;(default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_c</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--epochs&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Number of the epochs considered during the learning stage (default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_c</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--bs&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The size of the batches (default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_c</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--lr&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The learning rate considered during the learning stage (default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_c</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--decay&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The decay value considered during the learning stage (default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_c</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--reg&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The value of the L2 regularization method (default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_c</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--loss_function&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">losses_functions_options</span><span class="p">)),</span>
+                             <span class="n">help</span><span class="o">=</span><span class="n">losses_functions_options</span> <span class="o">+</span> <span class="s1">&#39;(default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_c</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--optimizer&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">optimizer_methods</span><span class="p">)),</span>
+                             <span class="n">help</span><span class="o">=</span><span class="n">optimizer_methods_options</span> <span class="o">+</span> <span class="s1">&#39;(default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_c</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--fold&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;(default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_c</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--force_train&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;(default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s1">&#39;Other options&#39;</span><span class="p">)</span>
+
+        <span class="n">group_d</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--operation&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;crop&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="s1">&#39;crop&#39;</span><span class="p">],</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;(default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_d</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--max_axis&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">260</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;(default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">group_d</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--device_number&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="p">,</span>
+                             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;(default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--n_jobs&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">N_JOBS</span><span class="p">,</span>
+                                 <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Number of jobs to be used during processing (default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">deprecated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s1">&#39;Deprecated arguments&#39;</span><span class="p">)</span>
+
+        <span class="n">deprecated</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--last_layer&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="s1">&#39;softmax&#39;</span><span class="p">],</span>
+                                <span class="n">help</span><span class="o">=</span><span class="s1">&#39;(default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">deprecated</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--layers_name&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;conv_1&#39;</span><span class="p">],</span>
+                                <span class="n">help</span><span class="o">=</span><span class="s1">&#39;(default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span>
+
+        <span class="n">deprecated</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--fv&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                                <span class="n">help</span><span class="o">=</span><span class="s1">&#39;(default=</span><span class="si">%(default)s</span><span class="s1">).&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CommandLineParser.get_args"><a class="viewcode-back" href="../../../../antispoofing.mcnns.scripts.html#antispoofing.mcnns.scripts.mcnnsantispoofing.CommandLineParser.get_args">[docs]</a>    <span class="k">def</span> <span class="nf">get_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div></div>
+
+<span class="c1"># -- main function</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+    <span class="c1"># -- parsing the command line options</span>
+    <span class="n">command_line</span> <span class="o">=</span> <span class="n">CommandLineParser</span><span class="p">()</span>
+    <span class="n">command_line</span><span class="o">.</span><span class="n">parsing</span><span class="p">()</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">command_line</span><span class="o">.</span><span class="n">get_args</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ARGS:&#39;</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+    <span class="c1"># -- create and execute a Controller object</span>
+    <span class="n">control</span> <span class="o">=</span> <span class="n">Controller</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">control</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+    <span class="n">elapsed</span> <span class="o">=</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total time elapsed: </span><span class="si">{0}</span><span class="s1">!&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> days, and %Hh:%Mm:%Ss&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">elapsed</span><span class="p">))))</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">MCNNs 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, ND Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

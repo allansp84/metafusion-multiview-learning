@@ -1,0 +1,494 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>antispoofing.mcnns.classification.baseclassifier &#8212; MCNNs 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">MCNNs 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for antispoofing.mcnns.classification.baseclassifier</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABCMeta</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">metrics</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">ticker</span>
+
+<span class="kn">from</span> <span class="nn">antispoofing.mcnns.utils</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">antispoofing.mcnns.measure</span> <span class="k">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="BaseClassifier"><a class="viewcode-back" href="../../../../antispoofing.mcnns.classification.html#antispoofing.mcnns.classification.baseclassifier.BaseClassifier">[docs]</a><span class="k">class</span> <span class="nc">BaseClassifier</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Abstract Class that will be the super-class of the others classes responsible for implementing the Classification.</span>
+
+<span class="sd">    This Class implements the common methods that will be use for all subclasses and also defines two methods, training() and testing(),</span>
+<span class="sd">    that must me implemented by the subclasses.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        output_path (str): A path where the results and intermediate files will be saved.</span>
+<span class="sd">        dataset (Dataset): A Dataset object containing the metadata of the dataset that will be used.</span>
+<span class="sd">        fold (int): Tell which fold will be used during the processing.</span>
+<span class="sd">        dataset_b (Dataset): A secondary dataset that will be used in the cross-dataset protocol.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">fold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dataset_b</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_b</span> <span class="o">=</span> <span class="n">dataset_b</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fold</span> <span class="o">=</span> <span class="n">fold</span>
+
+<div class="viewcode-block" id="BaseClassifier.interesting_samples"><a class="viewcode-back" href="../../../../antispoofing.mcnns.classification.html#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.interesting_samples">[docs]</a>    <span class="k">def</span> <span class="nf">interesting_samples</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_fnames</span><span class="p">,</span> <span class="n">test_sets</span><span class="p">,</span> <span class="n">class_report</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">threshold_type</span><span class="o">=</span><span class="s1">&#39;EER&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; This method persists a dictionary containing interesting samples for later visual assessments, which contains the filenames of</span>
+<span class="sd">        the samples that were incorrectly classified.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            all_fnames (numpy.ndarray): A list containing the filename for each image in the dataset.</span>
+<span class="sd">            test_sets (dict): A dictionary containing the data and the labels for all testing sets that compose the dataset.</span>
+<span class="sd">            class_report (dict): A dictionary containing several evaluation measures for each testing set.</span>
+<span class="sd">            predictions (dict): A dictionary containing the predicted scores and labels for each testing set.</span>
+<span class="sd">            threshold_type (str): Defines what threshold will be considered for deciding the false acceptance and false rejections.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">int_samples</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">predictions_test</span> <span class="o">=</span> <span class="n">predictions</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">predictions_test</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;train_set&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">predictions_test</span><span class="p">:</span>
+
+            <span class="n">gt</span> <span class="o">=</span> <span class="n">predictions_test</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;gt&#39;</span><span class="p">]</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="n">predictions_test</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;predicted_scores&#39;</span><span class="p">]</span>
+            <span class="n">test_idxs</span> <span class="o">=</span> <span class="n">test_sets</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;idxs&#39;</span><span class="p">]</span>
+            <span class="n">int_samples_idxs</span> <span class="o">=</span> <span class="n">get_interesting_samples</span><span class="p">(</span><span class="n">gt</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">class_report</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">threshold_type</span><span class="p">][</span><span class="s1">&#39;threshold&#39;</span><span class="p">])</span>
+
+            <span class="n">int_samples</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="k">for</span> <span class="n">key_samples</span> <span class="ow">in</span> <span class="n">int_samples_idxs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">int_samples</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">key_samples</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;input_fnames&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+                <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">int_samples_idxs</span><span class="p">[</span><span class="n">key_samples</span><span class="p">]:</span>
+                    <span class="n">int_samples</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">key_samples</span><span class="p">][</span><span class="s1">&#39;input_fnames&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">all_fnames</span><span class="p">[</span><span class="n">test_idxs</span><span class="p">[</span><span class="n">idx</span><span class="p">]]]</span>
+
+        <span class="n">json_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;int_samples.json&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--saving json file:&quot;</span><span class="p">,</span> <span class="n">json_fname</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">int_samples</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="BaseClassifier.save_performance_results"><a class="viewcode-back" href="../../../../antispoofing.mcnns.classification.html#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.save_performance_results">[docs]</a>    <span class="k">def</span> <span class="nf">save_performance_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">class_report</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Save the performance results in a .json file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            class_report (dict): A dictionary containing the evaluation results for each testing set.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-- saving the performance results in </span><span class="si">{0}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">))</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">class_report</span><span class="p">:</span>
+            <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="n">json_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s1">&#39;results.json&#39;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--saving results.json file:&quot;</span><span class="p">,</span> <span class="n">json_fname</span><span class="p">)</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">class_report</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="BaseClassifier.plot_score_distributions"><a class="viewcode-back" href="../../../../antispoofing.mcnns.classification.html#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.plot_score_distributions">[docs]</a>    <span class="k">def</span> <span class="nf">plot_score_distributions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thresholds</span><span class="p">,</span> <span class="n">neg_scores</span><span class="p">,</span> <span class="n">pos_scores</span><span class="p">,</span> <span class="n">set_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Plot the score distribution for a binary classification problem.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            thresholds (list): A list of tuples containing the types and the values of the thresholds applied in this work.</span>
+<span class="sd">            neg_scores (numpy.ndarray): The scores for the negative class.</span>
+<span class="sd">            pos_scores (numpy.ndarray): The scores for the positive class.</span>
+<span class="sd">            set_name (str): Name of the set used for computing the scores</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Score distributions (</span><span class="si">%s</span><span class="s2"> set)&quot;</span> <span class="o">%</span> <span class="n">set_name</span><span class="p">)</span>
+        <span class="n">n</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">patches</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">neg_scores</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Negative class&#39;</span><span class="p">)</span>
+        <span class="n">na</span><span class="p">,</span> <span class="n">binsa</span><span class="p">,</span> <span class="n">patchesa</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">pos_scores</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Positive class&#39;</span><span class="p">)</span>
+
+        <span class="c1"># -- add a line showing the expected distribution</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">mlab</span><span class="o">.</span><span class="n">normpdf</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">neg_scores</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">neg_scores</span><span class="p">))</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="s1">&#39;k--&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">mlab</span><span class="o">.</span><span class="n">normpdf</span><span class="p">(</span><span class="n">binsa</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">pos_scores</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">pos_scores</span><span class="p">))</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">binsa</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="s1">&#39;k--&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">thr_type</span><span class="p">,</span> <span class="n">thr_value</span> <span class="ow">in</span> <span class="n">thresholds</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">thr_value</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">thr_value</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">thr_type</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Scores&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Frequency&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.score.distribution.png&#39;</span> <span class="o">%</span> <span class="n">set_name</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseClassifier.plot_crossover_error_rate"><a class="viewcode-back" href="../../../../antispoofing.mcnns.classification.html#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.plot_crossover_error_rate">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">plot_crossover_error_rate</span><span class="p">(</span><span class="n">neg_scores</span><span class="p">,</span> <span class="n">pos_scores</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">n_points</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; TODO: Not ready yet.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            neg_scores (numpy.ndarray):</span>
+<span class="sd">            pos_scores (numpy.ndarray):</span>
+<span class="sd">            filename (str):</span>
+<span class="sd">            n_points (int):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">fars</span><span class="p">,</span> <span class="n">frrs</span><span class="p">,</span> <span class="n">thrs</span> <span class="o">=</span> <span class="n">farfrr_curve</span><span class="p">(</span><span class="n">neg_scores</span><span class="p">,</span> <span class="n">pos_scores</span><span class="p">,</span> <span class="n">n_points</span><span class="o">=</span><span class="n">n_points</span><span class="p">)</span>
+        <span class="n">x_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">thrs</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># -- create the general figure</span>
+        <span class="n">fig1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+
+        <span class="c1"># -- plot the FAR curve</span>
+        <span class="n">ax1</span> <span class="o">=</span> <span class="n">fig1</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fars</span><span class="p">[</span><span class="n">x_range</span><span class="p">],</span> <span class="s1">&#39;b-&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;(BPCER) FAR&quot;</span><span class="p">)</span>
+
+        <span class="c1"># -- plot the FRR curve</span>
+        <span class="n">ax2</span> <span class="o">=</span> <span class="n">fig1</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="n">ax1</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frrs</span><span class="p">[</span><span class="n">x_range</span><span class="p">],</span> <span class="s1">&#39;r-&#39;</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">tick_right</span><span class="p">()</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;(APCER) FRR&quot;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">()</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">ticker</span><span class="o">.</span><span class="n">FormatStrFormatter</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1">&#39;</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Threshold&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Error Rate&#39;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseClassifier.classification_results_summary"><a class="viewcode-back" href="../../../../antispoofing.mcnns.classification.html#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.classification_results_summary">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">classification_results_summary</span><span class="p">(</span><span class="n">report</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; This method is responsible for printing a summary of the classification results.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            report (dict): A dictionary containing the measures (e.g., Acc, APCER)  computed for each test set.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-- Classification Results&#39;</span><span class="p">)</span>
+
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Testing set&#39;</span><span class="p">,</span> <span class="s1">&#39;Threshold (value)&#39;</span><span class="p">,</span> <span class="s1">&#39;AUC&#39;</span><span class="p">,</span> <span class="s1">&#39;ACC&#39;</span><span class="p">,</span> <span class="s1">&#39;Balanced ACC&#39;</span><span class="p">,</span> <span class="s1">&#39;BPCER (FAR)&#39;</span><span class="p">,</span> <span class="s1">&#39;APCER (FRR)&#39;</span><span class="p">]</span>
+        <span class="n">header_line</span> <span class="o">=</span> <span class="s2">&quot;| </span><span class="si">{:&lt;20s}</span><span class="s2"> | </span><span class="si">{:&lt;20s}</span><span class="s2"> | </span><span class="si">{:&lt;12s}</span><span class="s2"> | </span><span class="si">{:&lt;12s}</span><span class="s2"> | </span><span class="si">{:&lt;12s}</span><span class="s2"> | </span><span class="si">{:&lt;12s}</span><span class="s2"> | </span><span class="si">{:&lt;12s}</span><span class="s2"> |</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">headers</span><span class="p">)</span>
+        <span class="n">sep_line</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">header_line</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+
+        <span class="n">final_report</span> <span class="o">=</span> <span class="n">sep_line</span>
+        <span class="n">final_report</span> <span class="o">+=</span> <span class="n">header_line</span>
+
+        <span class="k">for</span> <span class="n">k1</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">report</span><span class="p">):</span>
+            <span class="n">final_report</span> <span class="o">+=</span> <span class="n">sep_line</span>
+            <span class="k">for</span> <span class="n">k2</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">report</span><span class="p">[</span><span class="n">k1</span><span class="p">]):</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">k1</span><span class="p">,</span>
+                          <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> (</span><span class="si">{:.2f}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k2</span><span class="p">,</span> <span class="n">report</span><span class="p">[</span><span class="n">k1</span><span class="p">][</span><span class="n">k2</span><span class="p">][</span><span class="s1">&#39;threshold&#39;</span><span class="p">]),</span>
+                          <span class="n">report</span><span class="p">[</span><span class="n">k1</span><span class="p">][</span><span class="n">k2</span><span class="p">][</span><span class="s1">&#39;auc&#39;</span><span class="p">],</span>
+                          <span class="n">report</span><span class="p">[</span><span class="n">k1</span><span class="p">][</span><span class="n">k2</span><span class="p">][</span><span class="s1">&#39;acc&#39;</span><span class="p">],</span>
+                          <span class="n">report</span><span class="p">[</span><span class="n">k1</span><span class="p">][</span><span class="n">k2</span><span class="p">][</span><span class="s1">&#39;bacc&#39;</span><span class="p">],</span>
+                          <span class="n">report</span><span class="p">[</span><span class="n">k1</span><span class="p">][</span><span class="n">k2</span><span class="p">][</span><span class="s1">&#39;bpcer&#39;</span><span class="p">],</span>
+                          <span class="n">report</span><span class="p">[</span><span class="n">k1</span><span class="p">][</span><span class="n">k2</span><span class="p">][</span><span class="s1">&#39;apcer&#39;</span><span class="p">],</span>
+                          <span class="p">]</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="s2">&quot;| </span><span class="si">{:&lt;20s}</span><span class="s2"> | </span><span class="si">{:&lt;20s}</span><span class="s2"> | </span><span class="si">{:&lt;12.4f}</span><span class="s2"> | </span><span class="si">{:&lt;12.4f}</span><span class="s2"> | </span><span class="si">{:&lt;12.4f}</span><span class="s2"> | </span><span class="si">{:&lt;12.4f}</span><span class="s2"> | </span><span class="si">{:&lt;12.4f}</span><span class="s2"> |</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">values</span><span class="p">)</span>
+                <span class="n">final_report</span> <span class="o">+=</span> <span class="n">line</span>
+        <span class="n">final_report</span> <span class="o">+=</span> <span class="n">sep_line</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="n">final_report</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BaseClassifier.performance_evaluation"><a class="viewcode-back" href="../../../../antispoofing.mcnns.classification.html#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.performance_evaluation">[docs]</a>    <span class="k">def</span> <span class="nf">performance_evaluation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predictions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Compute the performance of the fitted model for each test set.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            predictions (dict): A dictionary with the ground-truth, the predicted scores and the predicted labels for the testing data. For Exemple: {&#39;test&#39;: {&#39;gt&#39;: y_test, &#39;predicted_labels&#39;: y_pred, &#39;predicted_scores&#39;: y_scores}}</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: A dictionary containing the performance results for each testing set. For example: {&#39;test&#39;: {&#39;acc&#39;: acc, &#39;apcer&#39;: apcer, &#39;bpcer&#39;: bpcer}}</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="n">report</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># -- compute the thresholds using the training set</span>
+        <span class="n">gt_train</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="s1">&#39;train_set&#39;</span><span class="p">][</span><span class="s1">&#39;gt&#39;</span><span class="p">]</span>
+        <span class="n">pred_scores_train</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="s1">&#39;train_set&#39;</span><span class="p">][</span><span class="s1">&#39;predicted_scores&#39;</span><span class="p">]</span>
+        <span class="n">genuine_scores_train</span><span class="p">,</span> <span class="n">attack_scores_train</span> <span class="o">=</span> <span class="n">split_score_distributions</span><span class="p">(</span><span class="n">gt_train</span><span class="p">,</span> <span class="n">pred_scores_train</span><span class="p">,</span> <span class="n">label_neg</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">label_pos</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">far_thr</span> <span class="o">=</span> <span class="n">far_threshold</span><span class="p">(</span><span class="n">genuine_scores_train</span><span class="p">,</span> <span class="n">attack_scores_train</span><span class="p">,</span> <span class="n">far_at</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+        <span class="n">eer_thr</span> <span class="o">=</span> <span class="n">eer_threshold</span><span class="p">(</span><span class="n">genuine_scores_train</span><span class="p">,</span> <span class="n">attack_scores_train</span><span class="p">)</span>
+
+        <span class="n">thresholds</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;FAR@0.01&#39;</span><span class="p">,</span> <span class="n">far_thr</span><span class="p">),</span>
+                      <span class="p">(</span><span class="s1">&#39;EER&#39;</span><span class="p">,</span> <span class="n">eer_thr</span><span class="p">),</span>
+                      <span class="p">(</span><span class="s1">&#39;0.5&#39;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+                      <span class="p">]</span>
+
+        <span class="c1"># -- plotting the score distribution for the training set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_score_distributions</span><span class="p">(</span><span class="n">thresholds</span><span class="p">,</span> <span class="n">genuine_scores_train</span><span class="p">,</span> <span class="n">attack_scores_train</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">)</span>
+
+        <span class="c1"># -- compute the evaluation metrics for the test sets</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">predictions</span><span class="p">:</span>
+            <span class="n">report</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="n">ground_truth</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;gt&#39;</span><span class="p">]</span>
+            <span class="n">pred_scores</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;predicted_scores&#39;</span><span class="p">]</span>
+
+            <span class="n">neg_scores</span><span class="p">,</span> <span class="n">pos_scores</span> <span class="o">=</span> <span class="n">split_score_distributions</span><span class="p">(</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">pred_scores</span><span class="p">,</span> <span class="n">label_neg</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">label_pos</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># -- compute the Area Under ROC curve</span>
+            <span class="n">roc_auc</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">pred_scores</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">thr_type</span><span class="p">,</span> <span class="n">thr_value</span> <span class="ow">in</span> <span class="n">thresholds</span><span class="p">:</span>
+
+                <span class="c1"># -- compute the FAR and FRR</span>
+                <span class="c1"># -- FAR (BPCER) is the rate of Genuine images classified as Presentation Attacks images</span>
+                <span class="c1"># -- FRR (APCER) is the rate of Presentation Attack images classified as Genuine images</span>
+                <span class="c1"># -- Note: Presentation Attacks images represent the Positive Class (label 1) are the</span>
+                <span class="c1"># --       genuine images represent the Negative Class (0)</span>
+                <span class="n">bpcer</span><span class="p">,</span> <span class="n">apcer</span> <span class="o">=</span> <span class="n">farfrr</span><span class="p">(</span><span class="n">neg_scores</span><span class="p">,</span> <span class="n">pos_scores</span><span class="p">,</span> <span class="n">thr_value</span><span class="p">)</span>
+
+                <span class="c1"># -- compute the ACC and Balanced ACC</span>
+                <span class="n">acc</span> <span class="o">=</span> <span class="n">acc_threshold</span><span class="p">(</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">pred_scores</span><span class="p">,</span> <span class="n">thr_value</span><span class="p">,</span> <span class="n">label_neg</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">label_pos</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">bacc</span> <span class="o">=</span> <span class="n">bacc_threshold</span><span class="p">(</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">pred_scores</span><span class="p">,</span> <span class="n">thr_value</span><span class="p">,</span> <span class="n">label_neg</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">label_pos</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+                <span class="c1"># -- save the results in a dictionary</span>
+                <span class="n">report</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">thr_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;auc&#39;</span><span class="p">:</span> <span class="n">roc_auc</span><span class="p">,</span> <span class="s1">&#39;acc&#39;</span><span class="p">:</span> <span class="n">acc</span><span class="p">,</span> <span class="s1">&#39;bacc&#39;</span><span class="p">:</span> <span class="n">bacc</span><span class="p">,</span> <span class="s1">&#39;threshold&#39;</span><span class="p">:</span> <span class="n">thr_value</span><span class="p">,</span>
+                                         <span class="s1">&#39;apcer&#39;</span><span class="p">:</span> <span class="n">apcer</span><span class="p">,</span> <span class="s1">&#39;bpcer&#39;</span><span class="p">:</span> <span class="n">bpcer</span><span class="p">,</span>
+                                         <span class="p">}</span>
+
+            <span class="c1"># -- plotting the score distribution and the Crossover Error Rate (CER) graph</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot_score_distributions</span><span class="p">(</span><span class="n">thresholds</span><span class="p">,</span> <span class="n">neg_scores</span><span class="p">,</span> <span class="n">pos_scores</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot_crossover_error_rate</span><span class="p">(</span><span class="n">neg_scores</span><span class="p">,</span> <span class="n">pos_scores</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.cer.png&#39;</span> <span class="o">%</span> <span class="n">key</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classification_results_summary</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">report</span></div>
+
+    <span class="k">def</span> <span class="nf">_save_raw_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_fnames</span><span class="p">,</span> <span class="n">dataset_protocol</span><span class="p">,</span> <span class="n">predictions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Save the scores obtained for the trained model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            all_fnames (numpy.ndarray): List of filenames of all images in the dataset.</span>
+<span class="sd">            dataset_protocol (dict): A dictionary containing the metadata of the dataset.</span>
+<span class="sd">            predictions (dict): A dictionary containing the obtained scores.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">dataset_protocol</span><span class="p">[</span><span class="s1">&#39;test_set&#39;</span><span class="p">]:</span>
+            <span class="n">indexes</span> <span class="o">=</span> <span class="n">dataset_protocol</span><span class="p">[</span><span class="s1">&#39;test_set&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;idxs&#39;</span><span class="p">]</span>
+            <span class="n">aux</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">all_fnames</span><span class="p">[</span><span class="n">indexes</span><span class="p">],</span> <span class="n">predictions</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;predicted_scores&#39;</span><span class="p">],</span> <span class="n">predictions</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;predicted_labels&#39;</span><span class="p">])</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;fname&#39;</span><span class="p">,</span> <span class="s1">&#39;predicted_score&#39;</span><span class="p">,</span> <span class="s1">&#39;predicted_label&#39;</span><span class="p">),</span> <span class="n">formats</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;U100&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">aux</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.predictions.txt&#39;</span> <span class="o">%</span> <span class="n">key</span><span class="p">),</span> <span class="n">results</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">,</span><span class="si">%.6f</span><span class="s2">,</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BaseClassifier.run_evaluation_protocol"><a class="viewcode-back" href="../../../../antispoofing.mcnns.classification.html#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.run_evaluation_protocol">[docs]</a>    <span class="k">def</span> <span class="nf">run_evaluation_protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method implements the whole training and testing process considering the evaluation protocol defined for the dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="n">predictions</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># -- get the sets of images according to the protocol evaluation defined in each dataset.</span>
+        <span class="n">dataset_protocol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">protocol_eval</span><span class="p">(</span><span class="n">fold</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fold</span><span class="p">)</span>
+
+        <span class="c1"># -- start the training process</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training</span><span class="p">(</span><span class="n">dataset_protocol</span><span class="p">[</span><span class="s1">&#39;train_set&#39;</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">],</span> <span class="n">dataset_protocol</span><span class="p">[</span><span class="s1">&#39;train_set&#39;</span><span class="p">][</span><span class="s1">&#39;labels&#39;</span><span class="p">],</span>
+                      <span class="n">dataset_protocol</span><span class="p">[</span><span class="s1">&#39;test_set&#39;</span><span class="p">][</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">],</span> <span class="n">dataset_protocol</span><span class="p">[</span><span class="s1">&#39;test_set&#39;</span><span class="p">][</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;labels&#39;</span><span class="p">])</span>
+
+        <span class="c1"># -- compute the predicted scores and labels for the training set</span>
+        <span class="k">if</span> <span class="n">dataset_protocol</span><span class="p">[</span><span class="s1">&#39;train_set&#39;</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="n">predictions</span><span class="p">[</span><span class="s1">&#39;train_set&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">testing</span><span class="p">(</span><span class="n">dataset_protocol</span><span class="p">[</span><span class="s1">&#39;train_set&#39;</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">],</span> <span class="n">dataset_protocol</span><span class="p">[</span><span class="s1">&#39;train_set&#39;</span><span class="p">][</span><span class="s1">&#39;labels&#39;</span><span class="p">])</span>
+
+        <span class="c1"># -- compute the predicted scores and labels for the testing sets</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">dataset_protocol</span><span class="p">[</span><span class="s1">&#39;test_set&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">dataset_protocol</span><span class="p">[</span><span class="s1">&#39;test_set&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+                <span class="n">predictions</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">testing</span><span class="p">(</span><span class="n">dataset_protocol</span><span class="p">[</span><span class="s1">&#39;test_set&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">],</span> <span class="n">dataset_protocol</span><span class="p">[</span><span class="s1">&#39;test_set&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;labels&#39;</span><span class="p">])</span>
+
+        <span class="c1"># -- estimating the performance of the classifier</span>
+        <span class="n">class_report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">performance_evaluation</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span>
+
+        <span class="c1"># -- saving the performance results</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_performance_results</span><span class="p">(</span><span class="n">class_report</span><span class="p">)</span>
+
+        <span class="c1"># -- saving the raw scores</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save_raw_scores</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">meta_info</span><span class="p">[</span><span class="s1">&#39;all_fnames&#39;</span><span class="p">],</span> <span class="n">dataset_protocol</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
+
+        <span class="c1"># -- saving the interesting samples for further analysis</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interesting_samples</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">meta_info</span><span class="p">[</span><span class="s1">&#39;all_fnames&#39;</span><span class="p">],</span> <span class="n">dataset_protocol</span><span class="p">[</span><span class="s1">&#39;test_set&#39;</span><span class="p">],</span> <span class="n">class_report</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span>
+                                 <span class="n">threshold_type</span><span class="o">=</span><span class="s1">&#39;EER&#39;</span><span class="p">)</span>
+
+        <span class="c1"># --Cross-Dataset</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">predictions_b</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">dataset_b_protocol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_b</span><span class="o">.</span><span class="n">protocol_eval</span><span class="p">(</span><span class="n">fold</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fold</span><span class="p">)</span>
+
+            <span class="c1"># -- compute the predicted scores and labels for the training set</span>
+            <span class="k">if</span> <span class="n">dataset_b_protocol</span><span class="p">[</span><span class="s1">&#39;train_set&#39;</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+                <span class="n">predictions_b</span><span class="p">[</span><span class="s1">&#39;train_set&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">testing</span><span class="p">(</span><span class="n">dataset_b_protocol</span><span class="p">[</span><span class="s1">&#39;train_set&#39;</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">],</span>
+                                                          <span class="n">dataset_b_protocol</span><span class="p">[</span><span class="s1">&#39;train_set&#39;</span><span class="p">][</span><span class="s1">&#39;labels&#39;</span><span class="p">])</span>
+
+            <span class="c1"># -- compute the predicted scores and labels for the testing sets</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">dataset_b_protocol</span><span class="p">[</span><span class="s1">&#39;test_set&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">dataset_b_protocol</span><span class="p">[</span><span class="s1">&#39;test_set&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+                    <span class="n">predictions_b</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">testing</span><span class="p">(</span><span class="n">dataset_b_protocol</span><span class="p">[</span><span class="s1">&#39;test_set&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">],</span>
+                                                      <span class="n">dataset_b_protocol</span><span class="p">[</span><span class="s1">&#39;test_set&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;labels&#39;</span><span class="p">])</span>
+
+            <span class="c1"># -- estimating the performance of the classifier</span>
+            <span class="n">class_report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">performance_evaluation</span><span class="p">(</span><span class="n">predictions_b</span><span class="p">)</span>
+
+            <span class="c1"># -- saving the performance results</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_performance_results</span><span class="p">(</span><span class="n">class_report</span><span class="p">)</span>
+
+            <span class="c1"># -- saving the raw scores</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_raw_scores</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_b</span><span class="o">.</span><span class="n">meta_info</span><span class="p">[</span><span class="s1">&#39;all_fnames&#39;</span><span class="p">],</span> <span class="n">dataset_b_protocol</span><span class="p">,</span> <span class="n">predictions_b</span><span class="p">)</span>
+
+            <span class="c1"># -- saving the interesting samples for further analysis</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interesting_samples</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_b</span><span class="o">.</span><span class="n">meta_info</span><span class="p">[</span><span class="s1">&#39;all_fnames&#39;</span><span class="p">],</span> <span class="n">dataset_b_protocol</span><span class="p">[</span><span class="s1">&#39;test_set&#39;</span><span class="p">],</span> <span class="n">class_report</span><span class="p">,</span> <span class="n">predictions_b</span><span class="p">,</span>
+                                     <span class="n">threshold_type</span><span class="o">=</span><span class="s1">&#39;EER&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseClassifier.run"><a class="viewcode-back" href="../../../../antispoofing.mcnns.classification.html#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start the classification step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_evaluation_protocol</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BaseClassifier.training"><a class="viewcode-back" href="../../../../antispoofing.mcnns.classification.html#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.training">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">training</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">x_validation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_validation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; This method implements the training stage.</span>
+
+<span class="sd">        The training stage will be implemented by the subclasses, taking into account the particularities of the classification algorithm to be used.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x_train (numpy.ndarray): A multidimensional array containing the feature vectors (or images) to be used to train a classifier.</span>
+<span class="sd">            y_train (numpy.ndarray): A multidimensional array containing the labels refers to the feature vectors that will be used during the training stage.</span>
+<span class="sd">            x_validation (numpy.ndarray, optional): A multidimensional array containing the feature vectors (or images) to be used to test the classifier.</span>
+<span class="sd">            y_validation (numpy.ndarray, optional): A multidimensional array containing the labels refers to the feature vectors that will be used for testing the classification model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">NotImplemented</span></div>
+
+<div class="viewcode-block" id="BaseClassifier.testing"><a class="viewcode-back" href="../../../../antispoofing.mcnns.classification.html#antispoofing.mcnns.classification.baseclassifier.BaseClassifier.testing">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">testing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; This method implements the testing stage.</span>
+
+<span class="sd">        The testing stage will be implemented by the subclasses.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x_test (numpy.ndarray): A multidimensional array containing the feature vectors (or images) to be used to test the classifier.</span>
+<span class="sd">            y_test (numpy.ndarray): A multidimensional array containing the labels refers to the feature vectors that will be used to test the classification model.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A dictionary with the ground-truth, the predicted scores and the predicted labels for the testing data, such as {&#39;gt&#39;: y_test, &#39;predicted_labels&#39;: y_pred, &#39;predicted_scores&#39;: y_scores}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">NotImplemented</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">MCNNs 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, ND Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

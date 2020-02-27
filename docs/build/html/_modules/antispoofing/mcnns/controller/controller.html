@@ -1,0 +1,266 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>antispoofing.mcnns.controller.controller &#8212; MCNNs 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">MCNNs 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for antispoofing.mcnns.controller.controller</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">from</span> <span class="nn">antispoofing.mcnns.utils</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">antispoofing.mcnns.datasets</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">antispoofing.mcnns.features</span> <span class="k">import</span> <span class="n">Extraction</span>
+<span class="kn">from</span> <span class="nn">antispoofing.mcnns.classification</span> <span class="k">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="Controller"><a class="viewcode-back" href="../../../../antispoofing.mcnns.controller.html#antispoofing.mcnns.controller.controller.Controller">[docs]</a><span class="k">class</span> <span class="nc">Controller</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This class implements the Controller responsible for managing the main steps of our pipeline and its input and output directories.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        1. For now, only the classification module is being used.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        args (ArgumentParser): Object that contains the options provided on the command line.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        args (ArgumentParser): Contains the options provided by the user on the command line.</span>
+<span class="sd">        data (Dataset): The dataset to be processed.</span>
+<span class="sd">        data_b (Dataset): A secondary dataset to be used as testing in the cross-dataset protocol.</span>
+<span class="sd">        n_jobs (int): Number of processor(s) considered for the parallel execution.</span>
+
+<span class="sd">    Todo:</span>
+<span class="sd">        1. Implement and test the Extraction module using BSIF (Andrey&#39;s branch).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_b</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">n_jobs</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">features_path</span> <span class="o">=</span> <span class="s2">&quot;features&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classification_path</span> <span class="o">=</span> <span class="s2">&quot;classification&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_to_features</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">descriptor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_path</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Controller.feature_extraction"><a class="viewcode-back" href="../../../../antispoofing.mcnns.controller.html#antispoofing.mcnns.controller.controller.Controller.feature_extraction">[docs]</a>    <span class="k">def</span> <span class="nf">feature_extraction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Method responsible for extracting the feature vectors of each image into the dataset.</span>
+
+<span class="sd">        This method is responsible for creating and running the Extraction object, which takes as input the filename of the image</span>
+<span class="sd">        to be processed and its respective output filename. In case the user opts for processing the images in parallel, this method will</span>
+<span class="sd">        create a pool of Extraction object, one for each image, which will be processed in parallel using the package multiprocessing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">start</span> <span class="o">=</span> <span class="n">get_time</span><span class="p">()</span>
+
+        <span class="c1"># -- get the list of images to be processed</span>
+        <span class="n">input_fnames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">meta_info</span><span class="p">[</span><span class="s1">&#39;all_fnames&#39;</span><span class="p">]</span>
+
+        <span class="c1"># --  creates a output filename for each image in the dataset</span>
+        <span class="n">output_fnames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">input_fnames</span><span class="p">)):</span>
+            <span class="n">rel_fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">input_fnames</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">dataset_path</span><span class="p">)</span>
+            <span class="n">rel_fname_npy</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">.npy&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rel_fname</span><span class="p">)</span>
+            <span class="n">output_fnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_to_features</span><span class="p">,</span> <span class="n">rel_fname_npy</span><span class="p">))</span>
+        <span class="n">output_fnames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">output_fnames</span><span class="p">)</span>
+
+        <span class="c1"># -- creates a pool of Extraction object</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">input_fnames</span><span class="p">)):</span>
+            <span class="n">tasks</span> <span class="o">+=</span> <span class="p">[</span><span class="n">Extraction</span><span class="p">(</span><span class="n">output_fnames</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">input_fnames</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span>
+                                 <span class="n">descriptor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">descriptor</span><span class="p">,</span>
+                                 <span class="p">)]</span>
+
+        <span class="c1"># -- start to execute the objects Extraction by running the method Extraction.run()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;running </span><span class="si">%d</span><span class="s2"> tasks in parallel&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">))</span>
+            <span class="n">RunInParallel</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;running </span><span class="si">%d</span><span class="s2"> tasks in sequence&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">input_fnames</span><span class="p">)):</span>
+                <span class="n">tasks</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+                <span class="n">progressbar</span><span class="p">(</span><span class="s1">&#39;-- RunInSequence&#39;</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_fnames</span><span class="p">))</span>
+
+        <span class="n">elapsed</span> <span class="o">=</span> <span class="n">total_time_elapsed</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">get_time</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;spent time: </span><span class="si">{0}</span><span class="s1">!&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">elapsed</span><span class="p">))</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Controller.classification"><a class="viewcode-back" href="../../../../antispoofing.mcnns.controller.html#antispoofing.mcnns.controller.controller.Controller.classification">[docs]</a>    <span class="k">def</span> <span class="nf">classification</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Method responsible for executing the classification step.</span>
+
+<span class="sd">        This method is responsible for managing the classification step, creating and running the Classifier according to the input</span>
+<span class="sd">        arguments provided on the command line by the user, such as classification algorithm and its parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">start</span> <span class="o">=</span> <span class="n">get_time</span><span class="p">()</span>
+
+        <span class="n">algo</span> <span class="o">=</span> <span class="n">ml_algo</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">ml_algo</span><span class="p">]</span>
+
+        <span class="n">output_fname</span> <span class="o">=</span> <span class="s2">&quot;max_axis-</span><span class="si">{}</span><span class="s2">-epochs-</span><span class="si">{}</span><span class="s2">-bs-</span><span class="si">{}</span><span class="s2">-losses-</span><span class="si">{}</span><span class="s2">-lr-</span><span class="si">{}</span><span class="s2">-decay-</span><span class="si">{}</span><span class="s2">-optimizer-</span><span class="si">{}</span><span class="s2">-reg-</span><span class="si">{}</span><span class="s2">-&quot;</span> \
+                       <span class="s2">&quot;fold-</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">max_axis</span><span class="p">,</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">bs</span><span class="p">,</span>
+                                        <span class="n">losses_functions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">loss_function</span><span class="p">],</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">lr</span><span class="p">,</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">decay</span><span class="p">,</span>
+                                        <span class="n">optimizer_methods</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">optimizer</span><span class="p">],</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">reg</span><span class="p">,</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">fold</span><span class="p">,</span>
+                                        <span class="p">)</span>
+
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">descriptor</span><span class="p">,</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">classification_path</span><span class="p">,</span>
+                                   <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">permutation_path</span><span class="p">))[</span><span class="mi">0</span><span class="p">],</span>
+                                   <span class="n">output_fname</span><span class="p">,</span>
+                                   <span class="p">)</span>
+
+        <span class="n">algo</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+             <span class="n">dataset_b</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_b</span><span class="p">,</span>
+             <span class="n">input_shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">max_axis</span><span class="p">,</span>
+             <span class="n">epochs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span>
+             <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">bs</span><span class="p">,</span>
+             <span class="n">loss_function</span><span class="o">=</span><span class="n">losses_functions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">loss_function</span><span class="p">],</span>
+             <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">lr</span><span class="p">,</span>
+             <span class="n">decay</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">decay</span><span class="p">,</span>
+             <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer_methods</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">optimizer</span><span class="p">],</span>
+             <span class="n">regularization</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">reg</span><span class="p">,</span>
+             <span class="n">device_number</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">device_number</span><span class="p">,</span>
+             <span class="n">force_train</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">force_train</span><span class="p">,</span>
+             <span class="n">filter_vis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">fv</span><span class="p">,</span>
+             <span class="n">layers_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">layers_name</span><span class="p">,</span>
+             <span class="n">fold</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">fold</span><span class="p">,</span>
+             <span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+        <span class="n">elapsed</span> <span class="o">=</span> <span class="n">total_time_elapsed</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">get_time</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;spent time: </span><span class="si">{0}</span><span class="s1">!&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">elapsed</span><span class="p">))</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Controller.run"><a class="viewcode-back" href="../../../../antispoofing.mcnns.controller.html#antispoofing.mcnns.controller.controller.Controller.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Method responsible for executing the steps of our pipeline.</span>
+
+<span class="sd">        This is the main method of the class Controller responsible for executing the steps of our pipeline, according to the input</span>
+<span class="sd">        arguments provided on the command line by the user.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># -- create an object for the main dataset</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">registered_datasets</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">dataset</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">dataset_path</span><span class="p">,</span>
+                            <span class="n">ground_truth_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">ground_truth_path</span><span class="p">,</span>
+                            <span class="n">permutation_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">permutation_path</span><span class="p">,</span>
+                            <span class="n">iris_location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">iris_location</span><span class="p">,</span>
+                            <span class="n">output_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span>
+                            <span class="n">operation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">operation</span><span class="p">,</span>
+                            <span class="n">max_axis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">max_axis</span><span class="p">,</span>
+                            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span>
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">protocol</span><span class="p">,</span>
+                                             <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+                                             <span class="p">)</span>
+
+        <span class="c1"># -- create an object for the second dataset in case the user opts for running the cross-dataset protocol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_b</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s1">&#39;inter&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">protocol</span><span class="p">:</span>
+            <span class="n">dataset_b</span> <span class="o">=</span> <span class="n">registered_datasets</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">dataset_b</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_b</span> <span class="o">=</span> <span class="n">dataset_b</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">dataset_path_b</span><span class="p">,</span>
+                                    <span class="n">ground_truth_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">ground_truth_path_b</span><span class="p">,</span>
+                                    <span class="n">permutation_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">permutation_path</span><span class="p">,</span>
+                                    <span class="n">iris_location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">iris_location_b</span><span class="p">,</span>
+                                    <span class="n">output_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span>
+                                    <span class="n">operation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">operation</span><span class="p">,</span>
+                                    <span class="n">max_axis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">max_axis</span><span class="p">,</span>
+                                    <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_b</span><span class="o">.</span><span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span>
+                                                   <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_b</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+                                                   <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">feature_extraction</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-- extracting features ...&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">feature_extraction</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">classification</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-- classifying ...&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classification</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">MCNNs 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, ND Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

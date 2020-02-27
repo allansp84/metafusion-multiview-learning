@@ -1,0 +1,10 @@
+In the .txt files, the label '1' corresponds to a fake image and '0' to a live image
+
+TRAIN:
+1200 Images: 600 live and 600 fake
+
+TEST
+1800 Images: 900 live and 900 fake
+
+TEST "UNKNOWN"
+1800 Images: 900 live and 900 fake

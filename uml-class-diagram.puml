@@ -1,0 +1,69 @@
+@startuml
+
+class CommandLine{
+    args
+    main()
+}
+
+class Extraction{
+    extract_features()
+    save_features()
+    run()
+}
+
+class BSIF{
+    extraction()
+}
+
+
+class Controller{
+    feature_extraction()
+    classification()
+    execute_protocol()
+}
+
+
+class Dataset{
+    meta_info
+    meta_info_feats()
+    get_imgs()
+    list_dirs()
+}
+
+class LivDet17{
+    build_meta()
+    protocol_eval()
+}
+
+class NDCLD15{
+    build_meta()
+    protocol_eval()
+}
+
+class BaseClassifier{
+    interesting_samples()
+    save_performance_results()
+    plot_crossover_error_rate()
+    classification_results_summary()
+    performance_evaluation()
+    run_evaluation_protocol()
+    run()
+}
+
+class CNN{
+    training()
+    testing()
+}
+
+CommandLine -- Controller
+Controller -- Extraction
+Extraction -- BSIF
+
+Controller -- Dataset
+Dataset <|-- LivDet17
+Dataset <|-- NDCLD15
+
+Controller -- BaseClassifier
+BaseClassifier <|-- CNN
+
+@enduml

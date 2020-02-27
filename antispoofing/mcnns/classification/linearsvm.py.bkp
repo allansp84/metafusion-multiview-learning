@@ -1,0 +1,145 @@
+# # -*- coding: utf-8 -*-
+#
+# import os
+# import sys
+# import numpy as np
+#
+# from joblib import delayed
+# from joblib import Parallel
+# from sklearn.svm import SVC, LinearSVC
+# from sklearn.grid_search import GridSearchCV
+# from antispoofing.mcnns.utils import *
+# from antispoofing.mcnns.classification.baseclassifier import BaseClassifier
+# from sklearn.decomposition import *
+# from sklearn.manifold import *
+#
+#
+# def build_grid_search():
+#
+#     # -- build set the parameters for grid search
+#     log2c = np.logspace(-5,  25, 16, base=2).tolist()
+#     log2g = np.logspace(-15, 5, 16, base=2).tolist()
+#
+#     search_space = [{'kernel': ['rbf'], 'gamma':log2g, 'C':log2c, 'class_weight':['balanced']}]
+#     # search_space += [{'kernel': ['linear'], 'C':log2c, 'class_weight':['balanced']}]
+#
+#     # search_space = [{'kernel': ['rbf'], 'C': log2c, 'class_weight': ['balanced']}]
+#     grid_search = GridSearchCV(SVC(random_state=42), search_space, cv=10, scoring='roc_auc', n_jobs=-1)
+#
+#     return grid_search
+#
+#
+# def one_ova(x_train, y_train, cat):
+#     lcat = np.zeros(y_train.size)
+#
+#     lcat[y_train != cat] = -1
+#     lcat[y_train == cat] = +1
+#
+#     clf = LinearSVC(C=1e5, class_weight='balanced', random_state=42)
+#     clf.fit(x_train, lcat)
+#
+#     return clf
+#
+# class LinearSVM(BaseClassifier):
+#     """
+#     This class implements a classification scheme by using Support Vector Machine algorithm available on scikit-learn
+#     package. This implementation can deal with both multi-class and binary problems.
+#     """
+#
+#     def __init__(self, output_path, dataset, frame_numbers=0, frame_fusion_type='max',
+#                  protocol_definition='tvt-protocol', dataset_b=None, output_model=None):
+#
+#         super(LinearSVM, self).__init__(output_path, dataset,
+#                                         frame_numbers=frame_numbers,
+#                                         frame_fusion_type=frame_fusion_type,
+#                                         protocol_definition=protocol_definition,
+#                                         dataset_b=dataset_b,
+#                                         output_model=output_model)
+#
+#         # private attributes
+#         self.__output_path = ''
+#
+#         # public attributes
+#         self.output_path = output_path
+#         self.protocol_definition = protocol_definition
+#         self.debug = True
+#         self.persist_model = False
+#
+#         # self.fusion_type = fusion_type
+#         self.n_components = 3
+#         self.decomposition_method = ''
+#         self.decomposition_model = None
+#         self.model = None
+#
+#     def training(self, x_train, y_train, output_path_model, debug=True):
+#         print('Training ...')
+#         sys.stdout.flush()
+#
+#         support_idxs = []
+#
+#         fname_model = os.path.join(output_path_model, 'classification.model')
+#
+#         if self.persist_model:
+#             # -- try loading model
+#             self.model = self.load_model(fname_model, debug=debug)
+#         else:
+#             self.model = None
+#
+#         # -- True if model does not generated yet
+#         if not self.model:
+#             if debug:
+#                 print('-- building model')
+#                 sys.stdout.flush()
+#
+#             categories = np.unique(y_train)
+#
+#             # -- train OVA in parallel
+#             # self.model = Parallel(n_jobs=-1)(delayed(one_ova)(x_train, y_train, cat) for cat in categories)
+#             model = one_ova(x_train, y_train, 1)
+#             self.model = [model, model]
+#             # model = []
+#             # for idx, cat in enumerate(categories):
+#             #     model += [one_ova(x_train, y_train, cat)]
+#             # self.model = model
+#
+#             # -- True if is to persist the model
+#             if self.persist_model:
+#                 save_object(self.model, fname_model)
+#
+#         return support_idxs
+#
+#     def testing(self, x_test, y_test, output_path_model, debug=True):
+#
+#         # print('Testing ...')
+#         # sys.stdout.flush()
+#         fname_model = os.path.join(output_path_model, 'classification.model')
+#
+#         if self.persist_model:
+#             self.model = self.load_model(fname_model, debug=debug)
+#
+#         if self.model:
+#
+#             categories = np.unique(y_test)
+#
+#             n_categories = len(categories)
+#             n_test = x_test.shape[0]
+#
+#             # x_test = self.dimensionality_reduction(output_path_model, x_test, set_name='test')
+#
+#             print("-- dimensions of feature: {0}".format(x_test.shape))
+#             sys.stdout.flush()
+#
+#             # predicted_scores = np.empty((n_test, n_categories))
+#             # for icat, cat in enumerate(categories):
+#             predicted_scores = self.model[1].decision_function(x_test)
+#
+#             y_test[y_test != 1] = -1
+#
+#             outputs = {'gt': y_test,
+#                        'predicted_scores': predicted_scores,
+#                        }
+#
+#         else:
+#             sys.exit('-- model not found! Please, execute training again!')
+#
+#         return outputs

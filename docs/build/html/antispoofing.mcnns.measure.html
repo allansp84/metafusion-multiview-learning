@@ -1,0 +1,424 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>antispoofing.mcnns.measure package &#8212; MCNNs 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MCNNs 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="antispoofing-mcnns-measure-package">
+<h1>antispoofing.mcnns.measure package<a class="headerlink" href="#antispoofing-mcnns-measure-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-antispoofing.mcnns.measure.measure">
+<span id="antispoofing-mcnns-measure-measure-module"></span><h2>antispoofing.mcnns.measure.measure module<a class="headerlink" href="#module-antispoofing.mcnns.measure.measure" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="antispoofing.mcnns.measure.measure.acc_threshold">
+<code class="descclassname">antispoofing.mcnns.measure.measure.</code><code class="descname">acc_threshold</code><span class="sig-paren">(</span><em>ground_truth</em>, <em>scores</em>, <em>threshold</em>, <em>label_neg</em>, <em>label_pos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/measure/measure.html#acc_threshold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.measure.measure.acc_threshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the Accuracy upon a given threshold.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ground_truth</strong> (<em>numpy.ndarray</em>) – The ground-truth.</li>
+<li><strong>scores</strong> (<em>numpy.ndarray</em>) – The predicted scores.</li>
+<li><strong>threshold</strong> (<em>float</em>) – Threshold value.</li>
+<li><strong>label_neg</strong> (<em>int</em>) – Label for the negative class.</li>
+<li><strong>label_pos</strong> (<em>int</em>) – Label for the positive class.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Return the balanced accuracy, whose value can varies between 0.0 and 1.0, which means the worst and the
+perfect classification results, respectively.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="antispoofing.mcnns.measure.measure.bacc_threshold">
+<code class="descclassname">antispoofing.mcnns.measure.measure.</code><code class="descname">bacc_threshold</code><span class="sig-paren">(</span><em>ground_truth</em>, <em>predicted_scores</em>, <em>threshold</em>, <em>label_neg</em>, <em>label_pos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/measure/measure.html#bacc_threshold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.measure.measure.bacc_threshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the Balanced accuracy upon a given threshold.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ground_truth</strong> (<em>numpy.ndarray</em>) – The ground-truth.</li>
+<li><strong>predicted_scores</strong> (<em>numpy.ndarray</em>) – The predicted scores.</li>
+<li><strong>threshold</strong> (<em>float</em>) – Threshold value.</li>
+<li><strong>label_neg</strong> (<em>int</em>) – Label for the negative class.</li>
+<li><strong>label_pos</strong> (<em>int</em>) – Label for the positive class.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Return the balanced accuracy considering a given threshold. The balanced accuracy can varies between 0.0 and 1.0, which
+means the worst and the perfect classification results, respectively.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="antispoofing.mcnns.measure.measure.balanced_accuracy">
+<code class="descclassname">antispoofing.mcnns.measure.measure.</code><code class="descname">balanced_accuracy</code><span class="sig-paren">(</span><em>ground_truth</em>, <em>predicted_labels</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/measure/measure.html#balanced_accuracy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.measure.measure.balanced_accuracy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the Balanced accuracy</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ground_truth</strong> (<em>numpy.ndarray</em>) – The ground-truth.</li>
+<li><strong>predicted_labels</strong> (<em>numpy.ndarray</em>) – The predicted labels.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Return the balanced accuracy, whose value can varies between 0.0 and 1.0, which means the worst and the
+perfect classification results, respectively.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="antispoofing.mcnns.measure.measure.calc_hter">
+<code class="descclassname">antispoofing.mcnns.measure.measure.</code><code class="descname">calc_hter</code><span class="sig-paren">(</span><em>neg_devel</em>, <em>pos_devel</em>, <em>neg_test</em>, <em>pos_test</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/measure/measure.html#calc_hter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.measure.measure.calc_hter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the Half Total Error Rate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>neg_devel</strong> (<em>numpy.ndarray</em>) – </li>
+<li><strong>pos_devel</strong> (<em>numpy.ndarray</em>) – </li>
+<li><strong>neg_test</strong> (<em>numpy.ndarray</em>) – </li>
+<li><strong>pos_test</strong> (<em>numpy.ndarray</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="antispoofing.mcnns.measure.measure.compute_det">
+<code class="descclassname">antispoofing.mcnns.measure.measure.</code><code class="descname">compute_det</code><span class="sig-paren">(</span><em>negatives</em>, <em>positives</em>, <em>n_points</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/measure/measure.html#compute_det"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.measure.measure.compute_det" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>negatives</strong> (<em>numpy.ndarray</em>) – The scores for the negative class.</li>
+<li><strong>positives</strong> (<em>numpy.ndarray</em>) – The scores for the positive class.</li>
+<li><strong>n_points</strong> (<em>int</em>) – Number of points considered to build the curve.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We suppose that negative scores is on the left side of the positive scores
+Deprecated condition: We suppose that negative scores is lower than 0 and positive scores os upper than 0</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="antispoofing.mcnns.measure.measure.det">
+<code class="descclassname">antispoofing.mcnns.measure.measure.</code><code class="descname">det</code><span class="sig-paren">(</span><em>negatives</em>, <em>positives</em>, <em>n_points</em>, <em>axis_font_size='x-small'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/measure/measure.html#det"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.measure.measure.det" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>negatives</strong> (<em>numpy.ndarray</em>) – The scores for the negative class.</li>
+<li><strong>positives</strong> (<em>numpy.ndarray</em>) – The scores for the positive class.</li>
+<li><strong>n_points</strong> (<em>int</em>) – Number of points considered to build the curve.</li>
+<li><strong>axis_font_size</strong> (<em>str</em>) – A string specifying the axis font size.</li>
+<li><strong>**kwargs</strong> – Optional arguments for the plot function of the matplotlib.pyplot package.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="antispoofing.mcnns.measure.measure.det_axis">
+<code class="descclassname">antispoofing.mcnns.measure.measure.</code><code class="descname">det_axis</code><span class="sig-paren">(</span><em>v</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/measure/measure.html#det_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.measure.measure.det_axis" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>v</strong> – </li>
+<li><strong>**kwargs</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="antispoofing.mcnns.measure.measure.eer_threshold">
+<code class="descclassname">antispoofing.mcnns.measure.measure.</code><code class="descname">eer_threshold</code><span class="sig-paren">(</span><em>neg_scores</em>, <em>pos_scores</em>, <em>n_points=1000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/measure/measure.html#eer_threshold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.measure.measure.eer_threshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the EER threshold, that is, the threshold in that the FAR = FRR</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>neg_scores</strong> (<em>numpy.ndarray</em>) – The scores for the negative class.</li>
+<li><strong>pos_scores</strong> (<em>numpy.ndarray</em>) – The scores for the positive class.</li>
+<li><strong>n_points</strong> (<em>int</em>) – Number of points considered to build the curve. Default is 1000.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We suppose that negative scores is on the left side of the positive scores
+Deprecated condition: We suppose that negative scores is lower than 0 and positive scores os upper than 0</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="antispoofing.mcnns.measure.measure.far_threshold">
+<code class="descclassname">antispoofing.mcnns.measure.measure.</code><code class="descname">far_threshold</code><span class="sig-paren">(</span><em>negatives</em>, <em>positives</em>, <em>far_at</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/measure/measure.html#far_threshold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.measure.measure.far_threshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the threshold in that FAR=far_value</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>negatives</strong> (<em>numpy.ndarray</em>) – The scores for the negative class.</li>
+<li><strong>positives</strong> (<em>numpy.ndarray</em>) – The scores for the positive class.</li>
+<li><strong>far_at</strong> (<em>float</em>) – A value for the false acceptance rate.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="antispoofing.mcnns.measure.measure.farfrr">
+<code class="descclassname">antispoofing.mcnns.measure.measure.</code><code class="descname">farfrr</code><span class="sig-paren">(</span><em>negatives</em>, <em>positives</em>, <em>threshold</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/measure/measure.html#farfrr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.measure.measure.farfrr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the False Acceptance and the False Rejection Rates considering a given threshold value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>negatives</strong> (<em>numpy.ndarray</em>) – The scores for the negative class.</li>
+<li><strong>positives</strong> (<em>numpy.ndarray</em>) – The scores for the positive class.</li>
+<li><strong>threshold</strong> (<em>float</em>) – A threshold value.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="antispoofing.mcnns.measure.measure.farfrr_curve">
+<code class="descclassname">antispoofing.mcnns.measure.measure.</code><code class="descname">farfrr_curve</code><span class="sig-paren">(</span><em>negatives</em>, <em>positives</em>, <em>n_points=1000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/measure/measure.html#farfrr_curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.measure.measure.farfrr_curve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the far and frr curve</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>negatives</strong> (<em>numpy.ndarray</em>) – The scores for the negative class.</li>
+<li><strong>positives</strong> (<em>numpy.ndarray</em>) – The scores for the positive class.</li>
+<li><strong>n_points</strong> (<em>int</em>) – Number of points considered to build the curve. Default is 1000.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We suppose that negative scores is on the left side of the positive scores
+Deprecated condition: We suppose that negative scores is lower than 0 and positive scores os upper than 0</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="antispoofing.mcnns.measure.measure.ppndf">
+<code class="descclassname">antispoofing.mcnns.measure.measure.</code><code class="descname">ppndf</code><span class="sig-paren">(</span><em>prob</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/measure/measure.html#ppndf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.measure.measure.ppndf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="antispoofing.mcnns.measure.measure.ppndf_over_array">
+<code class="descclassname">antispoofing.mcnns.measure.measure.</code><code class="descname">ppndf_over_array</code><span class="sig-paren">(</span><em>cum_prob</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/measure/measure.html#ppndf_over_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.measure.measure.ppndf_over_array" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="antispoofing.mcnns.measure.measure.predicted_labels_threshold">
+<code class="descclassname">antispoofing.mcnns.measure.measure.</code><code class="descname">predicted_labels_threshold</code><span class="sig-paren">(</span><em>scores</em>, <em>threshold</em>, <em>label_neg</em>, <em>label_pos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/measure/measure.html#predicted_labels_threshold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.measure.measure.predicted_labels_threshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function compute the predicted labels for the testing set based on the their scores.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>scores</strong> (<em>numpy.ndarray</em>) – A numpy array containing the predicted scores.</li>
+<li><strong>threshold</strong> (<em>float</em>) – Threshold value.</li>
+<li><strong>label_neg</strong> (<em>int</em>) – Label for the negative class.</li>
+<li><strong>label_pos</strong> (<em>int</em>) – Label for the positive class.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Return the predicted labels.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="antispoofing.mcnns.measure.measure.split_score_distributions">
+<code class="descclassname">antispoofing.mcnns.measure.measure.</code><code class="descname">split_score_distributions</code><span class="sig-paren">(</span><em>ground_truth</em>, <em>predicted_scores</em>, <em>label_neg</em>, <em>label_pos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/antispoofing/mcnns/measure/measure.html#split_score_distributions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#antispoofing.mcnns.measure.measure.split_score_distributions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the scores in negative and positive scores based on the ground-truth.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ground_truth</strong> (<em>numpy.ndarray</em>) – Ground-truth.</li>
+<li><strong>predicted_scores</strong> (<em>numpy.ndarray</em>) – The predicted scores.</li>
+<li><strong>label_neg</strong> (<em>int</em>) – Label for the negative class.</li>
+<li><strong>label_pos</strong> (<em>int</em>) – Label for the positive class.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-antispoofing.mcnns.measure">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-antispoofing.mcnns.measure" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">antispoofing.mcnns.measure package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-antispoofing.mcnns.measure.measure">antispoofing.mcnns.measure.measure module</a></li>
+<li><a class="reference internal" href="#module-antispoofing.mcnns.measure">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/antispoofing.mcnns.measure.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">MCNNs 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, ND Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>
